@@ -1,0 +1,70 @@
+server:
+  port: 9090
+spring:
+  autoconfigure:
+    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+  datasource:
+    druid:
+      stat-view-servlet:
+        enabled: true
+        loginUsername: admin
+        loginPassword: 123456
+        allow:
+      web-stat-filter:
+        enabled: true
+    dynamic:
+      primary: test #这玩意还必须指定，否则爆错
+      druid: # 全局druid参数，绝大部分值和默认保持一致。(现已支持的参数如下,不清楚含义不要乱设置)
+        # 连接池的配置信息
+        # 初始化大小，最小，最大
+        initial-size: 5
+        min-idle: 5
+        maxActive: 20
+        # 配置获取连接等待超时的时间
+        maxWait: 60000
+        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        timeBetweenEvictionRunsMillis: 60000
+        # 配置一个连接在池中最小生存的时间，单位是毫秒
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: SELECT 1
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        # 打开PSCache，并且指定每个连接上PSCache的大小
+        poolPreparedStatements: true
+        maxPoolPreparedStatementPerConnectionSize: 20
+        # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+        filters: stat,wall,slf4j
+        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      datasource:
+        test:
+          url: jdbc:mysql://127.0.0.1:3306/ssm_test
+          username: root
+          password: root
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        dev:
+          url: jdbc:mysql://127.0.0.1:3306/ssm_dev
+          username: root
+          password: root
+          driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    database: 2
+    host: 127.0.0.1
+    port: 6379
+    lettuce:
+      pool:
+        max-active: 10
+        max-idle: 10
+        min-idle: 1
+        time-between-eviction-runs: 10s
+
+mybatis-plus:
+  #指定xml路径，否则爆错
+  mapper-locations: classpath:com/chen/mapper/xml/*.xml
+  #configuration:
+    #sql日志
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    banner: false #关掉mybatis的banner
+
