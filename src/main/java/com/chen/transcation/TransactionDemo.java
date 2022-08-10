@@ -1,12 +1,10 @@
 package com.chen.transcation;
 
-import com.chen.entity.User;
+import com.chen.entity.DynamicUser;
 import com.chen.mapper.TestTransactionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -62,7 +60,7 @@ public class TransactionDemo {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 try {
                     int i = 0;
-                    i = testTransactionMapper.insert(new User("004", "transaction", "1", "dec"));
+                    i = testTransactionMapper.insert(new DynamicUser("004", "transaction", "1", "dec"));
                     //搞一个异常，让它爆错，执行不下去，然后回滚
                     int a = 5;
                     int b = a / 0;

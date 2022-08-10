@@ -3,7 +3,6 @@ package com.chen.mapper;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chen.entity.OutSourceR;
-import com.chen.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.ArrayList;

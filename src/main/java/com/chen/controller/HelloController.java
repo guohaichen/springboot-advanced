@@ -1,7 +1,7 @@
 package com.chen.controller;
 
-import com.chen.entity.User;
-import com.chen.mapper.UserMapper;
+import com.chen.entity.DynamicUser;
+import com.chen.mapper.DynamicUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,17 +23,17 @@ public class HelloController {
     StringRedisTemplate redisTemplate;
 
     @Autowired
-    private UserMapper userMapper;
+    private DynamicUserMapper dynamicUserMapper;
 
     @GetMapping("list")
-    public ArrayList<User> getUser(){
-        return userMapper.getTestUser();
+    public ArrayList<DynamicUser> getUser(){
+        return dynamicUserMapper.getTestUser();
     }
 
 
     @GetMapping("dev/list")
-    public ArrayList<User> getDevUser(){
-        return userMapper.getDevUser();
+    public ArrayList<DynamicUser> getDevUser(){
+        return dynamicUserMapper.getDevUser();
     }
 
 

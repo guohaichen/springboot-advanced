@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @TableName("user_test")
-public class User {
+public class DynamicUser {
     private String id;
     private String name;
     private String gender;

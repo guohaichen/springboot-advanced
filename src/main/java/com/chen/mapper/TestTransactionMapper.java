@@ -2,7 +2,7 @@ package com.chen.mapper;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chen.entity.User;
+import com.chen.entity.DynamicUser;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 @DS("test")
-public interface TestTransactionMapper extends BaseMapper<User> {
+public interface TestTransactionMapper extends BaseMapper<DynamicUser> {
 }
