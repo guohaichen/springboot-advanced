@@ -1,8 +1,9 @@
-package com.chen.security.service;
+package com.chen.security.login.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chen.security.login.entity.User;
 import com.chen.security.login.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,7 +14,8 @@ import org.springframework.stereotype.Service;
  * @create 2022-08-10 15:44
  */
 @Service
-public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
+@Slf4j
+public class UserDetailsServiceImpl implements org.springframework.security.core.userdetails.UserDetailsService {
 
     @Autowired
     private UserMapper userMapper;
@@ -21,9 +23,8 @@ public class UserDetailsService implements org.springframework.security.core.use
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUserName, username));
-
+        log.info("user:{}",user);
         return new LoginUser(user);
     }
 }

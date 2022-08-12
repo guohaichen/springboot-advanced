@@ -1,4 +1,4 @@
-package com.chen.security.service;
+package com.chen.security.login.service;
 
 import com.chen.security.login.entity.User;
 import lombok.Data;
@@ -25,14 +25,15 @@ public class LoginUser implements UserDetails {
         return null;
     }
 
+    //返回从数据库查到的password
     @Override
     public String getPassword() {
-        return null;
+        return user.getPassword();
     }
-
+    //返回从数据库查到的userName
     @Override
     public String getUsername() {
-        return null;
+        return user.getUserName();
     }
 
     @Override
