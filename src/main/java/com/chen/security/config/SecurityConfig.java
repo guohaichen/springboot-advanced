@@ -1,6 +1,5 @@
 package com.chen.security.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,13 +14,13 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     //@Bean
     // password加密bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
 
         return new BCryptPasswordEncoder();
     }
 
 
-    @Bean
+//    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeRequests()
                 //放行/user/get请求，放行的必须卸载anyRequest().authenticated()前面
@@ -34,6 +33,12 @@ public class SecurityConfig {
                 .successHandler(new MyAuthenticationSuccessHandler())
                 //登陆失败处理器
                 .failureHandler(new MyAuthenticationFailureHandler());
+
+
+                /*注销登录处理器
+                .and()
+                .logout().logoutSuccessHandler()*/
+
         return httpSecurity.build();
     }
 }

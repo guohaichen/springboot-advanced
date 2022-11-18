@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @author cgh
@@ -30,9 +32,13 @@ public class HelloController {
         return dynamicUserMapper.getTestUser();
     }
 
+    @GetMapping("mapList")
+    public Map<String,DynamicUser> getUserByMap(){
+        return dynamicUserMapper.getTestUserByMap();
+    }
 
     @GetMapping("dev/list")
-    public ArrayList<DynamicUser> getDevUser(){
+    public ArrayList<DynamicUser> getDevUser(HttpServletRequest request){
         return dynamicUserMapper.getDevUser();
     }
 

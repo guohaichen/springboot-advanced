@@ -3,9 +3,11 @@ package com.chen.mapper;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chen.entity.DynamicUser;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @author cgh
@@ -20,4 +22,8 @@ public interface DynamicUserMapper extends BaseMapper<DynamicUser> {
     //ssm_test数据库
     @DS("dev")
     ArrayList<DynamicUser> getDevUser();
+
+    @DS("test")
+    @MapKey("id")
+    Map<String, DynamicUser> getTestUserByMap();
 }

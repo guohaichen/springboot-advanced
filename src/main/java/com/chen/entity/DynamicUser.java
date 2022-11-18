@@ -1,5 +1,7 @@
 package com.chen.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,5 +17,7 @@ public class DynamicUser {
     private String id;
     private String name;
     private String gender;
+
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String hobby;
 }

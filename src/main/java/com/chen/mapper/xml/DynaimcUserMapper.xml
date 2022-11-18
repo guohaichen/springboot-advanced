@@ -8,4 +8,7 @@
     <select id="getDevUser" resultType="com.chen.entity.DynamicUser">
         select * from user_test
     </select>
+    <select id="getTestUserByMap" resultType="java.util.Map">
+        select * from user_test
+    </select>
 </mapper>
