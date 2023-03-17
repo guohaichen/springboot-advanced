@@ -1,8 +1,8 @@
-package com.chen.mapper;
+package com.chen.common_service.mapper;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chen.entity.DynamicUser;
+import com.chen.common_service.entity.DynamicUser;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -19,6 +19,7 @@ public interface DynamicUserMapper extends BaseMapper<DynamicUser> {
     //ssm_dev数据库
     @DS("test")
     ArrayList<DynamicUser> getTestUser();
+
     //ssm_test数据库
     @DS("dev")
     ArrayList<DynamicUser> getDevUser();

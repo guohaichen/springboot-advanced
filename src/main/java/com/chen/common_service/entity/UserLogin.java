@@ -1,4 +1,4 @@
-package com.chen.security.login.entity;
+package com.chen.common_service.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @TableName("user")
-public class User {
+public class UserLogin {
     @TableId
     private java.lang.String id;
 

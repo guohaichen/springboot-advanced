@@ -1,7 +1,7 @@
 package com.chen.transcation;
 
-import com.chen.entity.DynamicUser;
-import com.chen.mapper.TestTransactionMapper;
+import com.chen.common_service.entity.DynamicUser;
+import com.chen.common_service.mapper.TestTransactionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;

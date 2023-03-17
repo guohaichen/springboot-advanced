@@ -36,7 +36,7 @@ spring:
         # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
         filters: stat,wall,slf4j
         # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
-#        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      #        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
         test:
           url: jdbc:mysql://127.0.0.1:3306/ssm_test
@@ -58,13 +58,12 @@ spring:
         max-idle: 10
         min-idle: 1
         time-between-eviction-runs: 10s
-
 mybatis-plus:
   #指定xml路径，否则爆错
-  mapper-locations: classpath:com/chen/mapper/xml/*.xml
+  mapper-locations: classpath:com/chen/**/mapper/xml/*.xml
   #configuration:
-    #sql日志
-    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  #sql日志
+  #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     banner: false #关掉mybatis的banner
 

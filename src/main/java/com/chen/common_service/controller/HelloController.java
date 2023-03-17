@@ -1,7 +1,7 @@
-package com.chen.controller;
+package com.chen.common_service.controller;
 
-import com.chen.entity.DynamicUser;
-import com.chen.mapper.DynamicUserMapper;
+import com.chen.common_service.entity.DynamicUser;
+import com.chen.common_service.mapper.DynamicUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ import java.util.Map;
  * @create 2022-06-20 13:47
  */
 @RestController
-@RequestMapping("user")
+@RequestMapping("/user")
 public class HelloController {
 
     @Autowired
@@ -27,17 +27,17 @@ public class HelloController {
     @Autowired
     private DynamicUserMapper dynamicUserMapper;
 
-    @GetMapping("list")
+    @GetMapping("/list")
     public ArrayList<DynamicUser> getUser(){
         return dynamicUserMapper.getTestUser();
     }
 
-    @GetMapping("mapList")
+    @GetMapping("/mapList")
     public Map<String,DynamicUser> getUserByMap(){
         return dynamicUserMapper.getTestUserByMap();
     }
 
-    @GetMapping("dev/list")
+    @GetMapping("/dev/list")
     public ArrayList<DynamicUser> getDevUser(HttpServletRequest request){
         return dynamicUserMapper.getDevUser();
     }

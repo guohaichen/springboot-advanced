@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chen.mapper.DynamicUserMapper">
+<mapper namespace="com.chen.common_service.mapper.DynamicUserMapper">
 
-    <select id="getTestUser" resultType="com.chen.entity.DynamicUser">
+    <select id="getTestUser" resultType="com.chen.common_service.entity.DynamicUser">
         select * from user_test
     </select>
-    <select id="getDevUser" resultType="com.chen.entity.DynamicUser">
+    <select id="getDevUser" resultType="com.chen.common_service.entity.DynamicUser">
         select * from user_test
     </select>
     <select id="getTestUserByMap" resultType="java.util.Map">

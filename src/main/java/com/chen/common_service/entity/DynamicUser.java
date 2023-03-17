@@ -1,4 +1,4 @@
-package com.chen.entity;
+package com.chen.common_service.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;

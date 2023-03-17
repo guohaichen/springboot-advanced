@@ -1,7 +1,7 @@
-package com.chen.security.login.mapper;
+package com.chen.common_service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chen.security.login.entity.User;
+import com.chen.common_service.entity.UserLogin;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -9,5 +9,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @create 2022-08-10 22:28
  */
 @Mapper
-public interface UserMapper extends BaseMapper<User> {
+public interface UserLoginMapper extends BaseMapper<UserLogin> {
 }

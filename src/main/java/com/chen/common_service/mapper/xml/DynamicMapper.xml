@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chen.mapper.DynamicMapper">
+<mapper namespace="com.chen.common_service.mapper.DynamicMapper">
 
     <!--  如果是只加了separator="," sql则会变成select * from user_test where name in (?),(?),(?)  -->
     <!--  而正确的应该是让列表中的元素在一个括号内，(?,?,?), 需要配上open和close属性  -->
-    <select id="getUserForeach" resultType="com.chen.entity.OutSourceR">
+    <select id="getUserForeach" resultType="com.chen.common_service.entity.OutSourceR">
         Select * from outsource_resources where name in
         <foreach collection="arrayList" item="name"  open="(" separator="," close=")">
             #{name}

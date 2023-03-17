@@ -1,8 +1,8 @@
-package com.chen.controller;
+package com.chen.common_service.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.chen.entity.OutSourceR;
-import com.chen.mapper.DynamicMapper;
+import com.chen.common_service.entity.OutSourceR;
+import com.chen.common_service.mapper.DynamicMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +27,7 @@ public class DynamicController {
     //foreach 用法，比如我传一个集合，我想查询人员名字在这个集合中的人员
     @GetMapping("/list")
     public ArrayList<OutSourceR> getUserSupplier(){
-        String[] array = {"李旭东","严浩","胡杰"};
+        String[] array = {"李旭东","闫浩","胡杰"};
 
         ArrayList<String> arrayList = new ArrayList<>();
         Collections.addAll(arrayList,array);
