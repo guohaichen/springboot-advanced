@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.chen")
+@MapperScan("com.chen.common_service.mapper")
 public class SpringbootAdvancedApplication {
 
     public static void main(String[] args) {
