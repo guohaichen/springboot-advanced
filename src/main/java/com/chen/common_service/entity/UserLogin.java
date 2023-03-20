@@ -23,7 +23,7 @@ public class UserLogin {
 
     private java.lang.String createBy;
 
-    private java.lang.String userName;
+    private java.lang.String username;
 
     private java.lang.String password;
 

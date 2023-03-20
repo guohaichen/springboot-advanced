@@ -24,7 +24,7 @@ public class UserLoginServiceImpl extends ServiceImpl<UserLoginMapper, UserLogin
 
     @Override
     public Result<?> validatePassword(String username, String password) {
-        UserLogin userLogin = userLoginMapper.selectOne(new LambdaQueryWrapper<UserLogin>().eq(UserLogin::getUserName, username));
+        UserLogin userLogin = userLoginMapper.selectOne(new LambdaQueryWrapper<UserLogin>().eq(UserLogin::getUsername, username));
         if (userLogin == null) {
             return Result.error("用户不存在");
         }

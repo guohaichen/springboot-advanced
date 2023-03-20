@@ -11,7 +11,8 @@ import lombok.Data;
 public class Result<T> {
 
     private static final Integer CODE_200 = 200;
-    private static final Integer NO_AUTH_510 = 510;
+    //未授权返回码
+    private static final Integer NO_AUTH_510 = 401;
     /**
      * 成功标志
      */
