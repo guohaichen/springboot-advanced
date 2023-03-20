@@ -25,8 +25,6 @@ public class LoginController {
         String password = paramsMap.get("password");
         log.info("request in ,username:{},password:{}", username, password);
         //v1:未加密且直接从数据库验证
-        if (iUserLoginService.validatePassword(username, password)) {
-            return Result.OK(username);
-        } else return Result.error("密码错误");
+        return iUserLoginService.validatePassword(username, password);
     }
 }

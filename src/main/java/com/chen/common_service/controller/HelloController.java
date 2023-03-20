@@ -2,12 +2,10 @@ package com.chen.common_service.controller;
 
 import com.chen.common_service.entity.DynamicUser;
 import com.chen.common_service.mapper.DynamicUserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -18,6 +16,7 @@ import java.util.Map;
  * @create 2022-06-20 13:47
  */
 @RestController
+@Slf4j
 @RequestMapping("/user")
 public class HelloController {
 
@@ -28,30 +27,31 @@ public class HelloController {
     private DynamicUserMapper dynamicUserMapper;
 
     @GetMapping("/list")
-    public ArrayList<DynamicUser> getUser(){
+    public ArrayList<DynamicUser> getUser() {
         return dynamicUserMapper.getTestUser();
     }
 
     @GetMapping("/mapList")
-    public Map<String,DynamicUser> getUserByMap(){
+    public Map<String, DynamicUser> getUserByMap() {
         return dynamicUserMapper.getTestUserByMap();
     }
 
     @GetMapping("/dev/list")
-    public ArrayList<DynamicUser> getDevUser(HttpServletRequest request){
+    public ArrayList<DynamicUser> getDevUser(HttpServletRequest request) {
         return dynamicUserMapper.getDevUser();
     }
 
 
     @GetMapping("/get")
-    public String getName(){
-        redisTemplate.opsForValue().set("name","tom");
-        return redisTemplate.opsForValue().get("name");
+    public String getName(@RequestHeader("Authorization") String token) {
+        log.info("request's token from headers:{}", token);
+        redisTemplate.opsForValue().set("token", token);
+        return redisTemplate.opsForValue().get("token");
     }
 
     @GetMapping("/get/{name}")
-    public String getName(@PathVariable String name){
-        redisTemplate.opsForValue().set(name,name);
+    public String getNameByRedis(@PathVariable String name) {
+        redisTemplate.opsForValue().set(name, name);
         return redisTemplate.opsForValue().get(name);
     }
 }

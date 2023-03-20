@@ -11,7 +11,7 @@ import lombok.Data;
 public class Result<T> {
 
     private static final Integer CODE_200 = 200;
-    private static final Integer NO_AUTh_510 = 510;
+    private static final Integer NO_AUTH_510 = 510;
     /**
      * 成功标志
      */
@@ -68,6 +68,6 @@ public class Result<T> {
     }
 
     public static <T> Result<T> noAuth(String msg) {
-        return error(msg,NO_AUTh_510);
+        return error(msg, NO_AUTH_510);
     }
 }

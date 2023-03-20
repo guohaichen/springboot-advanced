@@ -1,6 +1,7 @@
 package com.chen.common_service.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.UserLogin;
 
 /**
@@ -8,5 +9,5 @@ import com.chen.common_service.entity.UserLogin;
  * @create 2023-03-20
  */
 public interface IUserLoginService extends IService<UserLogin> {
-    Boolean validatePassword(String username,String password);
+    Result<?> validatePassword(String username, String password);
 }

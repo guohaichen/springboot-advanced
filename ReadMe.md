@@ -56,7 +56,17 @@ public class CorsFilter implements Filter {
 
 #### 二、前端解决
 
+// todo
 
+### token流程
+
+1. 用户登陆时，服务器端会生成一个token，并将token返回给客户端。
+2. 客户端将token保存到Local Storage中，以便后续的请求中使用。
+3. 在后续的请求中，客户端从Local Storage中获取token，并将token添加到请求头中。
+4. 服务端在接收到请求时，会从请求头中获取token，并验证token的有效性。
+5. 根据token是否有效，处理请求并返回相应的请求。
+
+> 实际开发中，则还需要考虑token的过期时间、token的刷新机制，为了安全性，还需要使用加密技术来加密和验证token。
 
 ### spring-security
 
