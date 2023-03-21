@@ -84,6 +84,12 @@
             <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
             <version>3.2.0</version>
         </dependency>
+        <!--Bcrypt单项密码加密算法包-->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
     </dependencies>
 
     <build>

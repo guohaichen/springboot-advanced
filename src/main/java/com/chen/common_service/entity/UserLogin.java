@@ -27,5 +27,7 @@ public class UserLogin {
 
     private java.lang.String password;
 
+    private java.lang.String phone;
+
     private java.lang.String nickName;
 }

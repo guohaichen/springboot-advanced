@@ -68,6 +68,8 @@ public class CorsFilter implements Filter {
 
 > 实际开发中，则还需要考虑token的过期时间、token的刷新机制，为了安全性，还需要使用加密技术来加密和验证token。
 
+##### token加密
+
 ### spring-security
 
 #### 项目整合

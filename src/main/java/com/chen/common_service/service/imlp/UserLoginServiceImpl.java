@@ -34,7 +34,7 @@ public class UserLoginServiceImpl extends ServiceImpl<UserLoginMapper, UserLogin
             String token = UUID.randomUUID().toString().replace("-","").substring(0,10)+"-"+new Date().getTime();
             return Result.OK(token);
         } else {
-            return Result.error("密码错误");
+            return Result.error("用户名或密码错误");
         }
     }
 }
