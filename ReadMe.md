@@ -58,17 +58,99 @@ public class CorsFilter implements Filter {
 
 // todo
 
-### token流程
+### 认证
+
+#### session认证流程
+
+1. 客户端向服务器发送用户名和密码。
+2. 服务器验证通过后，在当前对话(session)里保存认证数据，比如用户角色，登录时间等。
+3. 认证成功后服务器向用户返回一个 **session_id**，写入客户端的**Cookie**。
+4. 客户端随后的每一次请求，都会通过cookie或请求头的方式，将session_id发回服务器。
+5. 服务器接收到请求后，根据session_id查找对应的session对象，找到了则说明用户成功登录。
+
+​	在上面的流程中，服务器需要维护一个Session列表，用于存储所有的session对象。在Java Web应用中，session对象通常通过HttpSession接口实现的，在SpringBoot应用中，可以通过Spring Session来实现session的管理。
+
+**缺点：**
+
+- **占用资源**：服务器需要维护一个session列表，这个列表可能会非常大，占用大量的内存和资源。且如果服务重启或崩溃，所有的session对象都会丢失，会导致用户需要重新登录。
+- **无法使用**：session认证是基于cookie的，如果用户禁用了cookie，那么session认证就无法用了。
+- **不安全**，session_id可能会被盗取，攻击者伪造用户的身份信息，进行一些非法操作。
+- **无法跨域**：session认证通常无法跨域的，如果需要多个域名之间共享session，就需要使用其他方案了，例如使用redis做session共享，持久化session等，还有jwt等。
+
+#### 基于token的认证流程
 
 1. 用户登陆时，服务器端会生成一个token，并将token返回给客户端。
 2. 客户端将token保存到Local Storage中，以便后续的请求中使用。
-3. 在后续的请求中，客户端从Local Storage中获取token，并将token添加到请求头中。
+3. 客户端在后续的请求中，从Local Storage中获取token，并将token添加到请求头中。
 4. 服务端在接收到请求时，会从请求头中获取token，并验证token的有效性。
 5. 根据token是否有效，处理请求并返回相应的请求。
 
+​	在前端vue中，可以使用axios拦截器来实现请求头添加token的功能。
+
+```vue
+axios.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `${token}`
+    }
+    return config
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
+// 存储token
+localStorage.setItem('token', token)
+```
+
+
+
 > 实际开发中，则还需要考虑token的过期时间、token的刷新机制，为了安全性，还需要使用加密技术来加密和验证token。
 
-##### token加密
+#### JWT
+
+jwt由有点分割的三个部分组成：**Header**.**Payload**.**Signature**
+
+- **Header**：是一个json对象，描述jwt的元数据，通常是下面的样子。**注意**：这个json需要Base64Url编码后才能放到jwt中。
+
+```json
+{
+  "alg": "HS256", //alg algorithm 该属性表示签名的算法，默认是 HMAC SHA256（写成 HS256）
+  "typ": "JWT"	//type属性表示这个token的类型，统一写为JWT
+}
+```
+
+- **Payload**: 也是一个json对象，用来存放实际需要传递的数据。（**注意**：这个jso也是需要Base64Url编码后才能放到jwt中）JWT规定了7个官方字段，供选用（也可自定义）：
+
+1. iss (issuer)：签发人
+
+2. exp (expiration time)：过期时间
+
+3. sub (subject)：主题
+
+4. aud (audience)：受众
+
+5. nbf (Not Before)：生效时间
+6. iat (Issued At)：签发时间
+7. jti (JWT ID)：编号
+
+> 注意：对于已签名的令牌，虽然该信息收到保护，不会被篡改，但任何人都可以读取。除非加密，所以不要放一些私密的信息在Payload或Header中。
+
+- **Signature**：它是对前两部分的签名，防止数据被篡改。首先需要指定一个secret，这个secret只有服务器知道。然后，使用Header里面的指定的签名算法。按照下面的公式产生签名，算出签名后，把Header和Payload、Signature三个部分组成一个字符串，每个部门用`.`分隔。返回给客户端。
+
+```javascript
+HMACSHA256(
+  base64UrlEncode(header) + "." +
+  base64UrlEncode(payload),
+  secret)
+/* Base64URL 介绍
+Head和Payload串行化的算法是base64Url,这个算法和Base64算法基本类似，不同点是这个算法会将字符`+`,`/`,`=`替换掉，因为有时token会被放到url中。这就是Base64URL算法。
+注意：Base64Url是一种编码，而不是加密过程，所以它是可逆的。
+/
+```
+
+
 
 ### spring-security
 
