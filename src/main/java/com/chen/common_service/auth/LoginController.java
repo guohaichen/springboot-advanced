@@ -32,7 +32,7 @@ public class LoginController {
         log.info("request in ,username:{},password:{}", username, password);
         //加密算法以及盐
         String hashPwd = BCrypt.hashpw((password), salt);
-        //v1:未加密且直接从数据库验证
+        //v1:未加密且直接从数据库验证,v2:update:加密切放入token
         return iUserLoginService.validatePassword(username, hashPwd);
     }
 
