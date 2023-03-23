@@ -36,14 +36,12 @@ public class JWTUtils {
 
     /**
      * @param token
-     * @return 验证成功会反悔payload, 算法，签名，密钥任何失败都会抛出异常
      */
-    public static DecodedJWT verifyToken(String token,String secret) {
+    public static void verifyToken(String token, String secret) {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret)).build();
         DecodedJWT decodedJWT = jwtVerifier.verify(token);
 
         Map<String, Claim> claims = decodedJWT.getClaims();
         claims.forEach((k, v) -> log.info("k:{}\t,v:{}", k, v));
-        return decodedJWT;
     }
 }

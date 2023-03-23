@@ -82,8 +82,32 @@ public class CorsFilter implements Filter {
 1. 用户登陆时，服务器端会生成一个token，并将token返回给客户端。
 2. 客户端将token保存到Local Storage中，以便后续的请求中使用。
 3. 客户端在后续的请求中，从Local Storage中获取token，并将token添加到请求头中。
-4. 服务端在接收到请求时，会从请求头中获取token，并验证token的有效性。
+4. 服务端在接收到请求时，会从请求头中获取token，并验证token的有效性。(配置请求拦截器，拦截请求头中的token；)
 5. 根据token是否有效，处理请求并返回相应的请求。
+
+​	springMVC中可以实现HandlerInterceptor接口，添加拦截规则；
+
+```java
+public class TokenInterceptor implements HandlerInterceptor {
+    @Value("${token.secret}")
+    private String secret;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String token = request.getHeader("Authorization");
+        log.info("request intercepted");
+        try {
+            JWTUtils.verifyToken(token, secret);
+        } catch (Exception e) {
+            log.warn("token exception:{}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+}
+```
+
+
 
 ​	在前端vue中，可以使用axios拦截器来实现请求头添加token的功能。
 
@@ -149,6 +173,37 @@ Head和Payload串行化的算法是base64Url,这个算法和Base64算法基本�
 注意：Base64Url是一种编码，而不是加密过程，所以它是可逆的。
 /
 ```
+
+**jwt要做的事**
+
+1. 生成token
+
+```java
+public static String buildToken(String username,String secret) {
+        String token = JWT.create()
+                .withClaim("username", username) //payload
+                .sign(Algorithm.HMAC256(secret));//signature，
+        log.info("token:\t{}", token);
+        return token;
+    }
+```
+
+2. 验证token
+
+```java
+public static void verifyToken(String token, String secret) {
+        JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret)).build();
+  			//decodedJWT即payload
+        DecodedJWT decodedJWT = jwtVerifier.verify(token);
+    }
+```
+
+在验证token的时候抛出异常，则说明验证不成功。有如下异常：
+
+- InvalidClaimException
+- JWTVerificationException
+- SignatureVerificationException
+- TokenExpiredException
 
 
 
