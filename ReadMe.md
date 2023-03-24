@@ -81,13 +81,14 @@ public class CorsFilter implements Filter {
 
 1. 用户登陆时，服务器端会生成一个token，并将token返回给客户端。
 2. 客户端将token保存到Local Storage中，以便后续的请求中使用。
-3. 客户端在后续的请求中，从Local Storage中获取token，并将token添加到请求头中。
-4. 服务端在接收到请求时，会从请求头中获取token，并验证token的有效性。(配置请求拦截器，拦截请求头中的token；)
-5. 根据token是否有效，处理请求并返回相应的请求。
+3. 客户端在后续的请求中，从Local Storage中获取token，并将token添加到请求头中。(见**客户端代码实现1**)
+4. 服务端在接收到请求时，会从请求头中获取token，并验证token的有效性。(配置请求拦截器，拦截请求头中的token；见**服务端代码实现1**)
+5. 根据token是否有效，服务端处理请求并返回相应的请求，客户端根据请求做出响应。
 
-​	springMVC中可以实现HandlerInterceptor接口，添加拦截规则；
+​	**服务端实现1**：springMVC中可以实现HandlerInterceptor接口，添加拦截规则；
 
 ```java
+@Component
 public class TokenInterceptor implements HandlerInterceptor {
     @Value("${token.secret}")
     private String secret;
@@ -107,9 +108,24 @@ public class TokenInterceptor implements HandlerInterceptor {
 }
 ```
 
+​	在添加完拦截器后还需要注册并配置拦截规则，实现WebMvcConfigurer。
 
+```java
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer{
+  @Autowired
+    private TokenInterceptor tokenInterceptor;
 
-​	在前端vue中，可以使用axios拦截器来实现请求头添加token的功能。
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(tokenInterceptor)
+                .addPathPatterns("/**") //拦截所有请求
+                .excludePathPatterns("/auth/login"); //放行登录接口，否则...
+    }
+}
+```
+
+​	**客户端实现1**：在前端vue中，可以使用axios请求拦截器来实现请求头添加token的功能。
 
 ```vue
 axios.interceptors.request.use(
@@ -126,6 +142,24 @@ axios.interceptors.request.use(
 )
 // 存储token
 localStorage.setItem('token', token)
+```
+
+​	使用axios响应拦截器实现服务器校验token失败、token过期等
+
+```vue
+axios.interceptors.response.use(
+    response => response,
+    error => {
+				//根据不同响应码做不同处理
+        if (error.response.status === 401) {
+            router.push("/login").then(r => r)
+        } else if (error.response.status === 500) {
+            console.log("500");
+            router.push("/login").then(r => r)
+        }
+        return Promise.reject(error)
+    }
+)
 ```
 
 
@@ -198,14 +232,12 @@ public static void verifyToken(String token, String secret) {
     }
 ```
 
-在验证token的时候抛出异常，则说明验证不成功。有如下异常：
+在验证token的时候抛出异常，则说明验证不成功。有如下异常：根据捕获不同的异常，可更精确的返回异常信息，比如签名异常，token过期等。
 
 - InvalidClaimException
 - JWTVerificationException
 - SignatureVerificationException
 - TokenExpiredException
-
-
 
 ### spring-security
 

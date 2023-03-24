@@ -12,7 +12,7 @@ public class Result<T> {
 
     private static final Integer CODE_200 = 200;
     //未授权返回码
-    private static final Integer NO_AUTH_510 = 401;
+    private static final Integer NO_AUTH_401 = 401;
     /**
      * 成功标志
      */
@@ -69,6 +69,6 @@ public class Result<T> {
     }
 
     public static <T> Result<T> noAuth(String msg) {
-        return error(msg, NO_AUTH_510);
+        return error(msg, NO_AUTH_401);
     }
 }

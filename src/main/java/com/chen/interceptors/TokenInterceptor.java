@@ -1,4 +1,4 @@
-package com.chen.filters;
+package com.chen.interceptors;
 
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +27,14 @@ public class TokenInterceptor implements HandlerInterceptor {
         try {
             //校验token的有效性，任何校验上的错误都会抛出异常。
             JWTUtils.verifyToken(token, secret);
+            //true放行
+            return true;
         } catch (Exception e) {
             log.warn("token exception:{}", e.getMessage());
-            throw new RuntimeException(e);
+            //返回json数据
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{'code':500,'msg':''token校验失败}'}");
+            throw new RuntimeException(e.getMessage());
         }
-        //true放行
-        return true;
     }
 }
