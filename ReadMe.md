@@ -246,7 +246,7 @@ public static void verifyToken(String token, String secret) {
 > 参考https://www.bezkoder.com/spring-boot-vue-js-authentication-jwt-spring-security/
 
 
-
+// todo
 #### security流程
 
 ##### 一、springboot项目中整合
