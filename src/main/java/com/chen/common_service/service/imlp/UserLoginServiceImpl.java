@@ -43,7 +43,7 @@ public class UserLoginServiceImpl extends ServiceImpl<UserLoginMapper, UserLogin
             //v2.使用了jwt生成token，并将token放入redis中
             TokenUtils tokenUtils = new TokenUtils(redisTemplate);
             String token = JWTUtils.buildToken(username,secret);
-            tokenUtils.putToken(token);
+            tokenUtils.putTokenWithExpiration(token);
             return Result.OK(token);
         } else {
             return Result.error("用户名或密码错误");

@@ -2,7 +2,9 @@ package com.chen.interceptors;
 
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -20,10 +22,19 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Value("${token.secret}")
     private String secret;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("Authorization");
         log.info("request intercepted");
+        //验证token是否过期
+        String redisToken = redisTemplate.opsForValue().get(token);
+        if (redisToken ==null){
+            response.getWriter().write("{'code':500,'msg':''token已过期}'}");
+            throw new RuntimeException("token已过期");
+        }
         try {
             //校验token的有效性，任何校验上的错误都会抛出异常。
             JWTUtils.verifyToken(token, secret);
