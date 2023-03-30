@@ -42,6 +42,6 @@ public class JWTUtils {
         DecodedJWT decodedJWT = jwtVerifier.verify(token);
 
         Map<String, Claim> claims = decodedJWT.getClaims();
-        claims.forEach((k, v) -> log.info("k:{}\t,v:{}", k, v));
+//        claims.forEach((k, v) -> log.info("k:{}\t,v:{}", k, v));
     }
 }
