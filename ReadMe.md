@@ -54,6 +54,8 @@ public class CorsFilter implements Filter {
 
 3. 方式三：请求的目标映射方法上加上**@CrossOrigin**
 
+****
+
 #### 二、前端解决
 
 // todo
@@ -239,6 +241,99 @@ public static void verifyToken(String token, String secret) {
 - SignatureVerificationException
 - TokenExpiredException
 
+****
+
+### CRUD基础篇
+
+#### 一、insert操作
+
+##### **自动填充**
+
+> 前言：根据阿里巴巴开发规范，一张表应包三个字段:主键，创建时间，修改时间；
+
+​	本项目一些表中，使用到了id,create_time两个字段。接下来就使用mybatis-plus的自动填充功能来完成这两个字段的注入，具体实现如下：
+
+- 创建类实现元对象处理器接口：com.baomidou.mybatisplus.core.handlers.MetaObjectHandler
+
+```java
+@Component
+public class MybatisMetaObjectHandler implements MetaObjectHandler{
+  @Override
+    public void insertFill(MetaObject metaObject) {
+        log.info("insert auto fill");
+        this.strictInsertFill(metaObject, "createTime", Date.class, new Date());
+      	//主键待优化
+        this.strictInsertFill(metaObject, "id", String.class, UUID.randomUUID().toString());
+    }
+    @Override
+    public void updateFill(MetaObject metaObject) {
+		//...
+    }
+}
+```
+
+- 在实体类上添加注解填充字段`@TableField(value="creat_time",fill = FieldFill.INSERT)`。
+
+```java
+public class Photography{
+  @TableField(value = "id",fill = fieldFill.INSERT)
+  private String id;
+  
+  @TableField(value = "create_time",fill = fieldFill.ISERT)
+  private Date createTime;
+  //...
+}
+```
+
+> 备注：
+>
+> - MetaObjectHandler提供的默认方法的策略均为：如果属性有值则不覆盖，如果填充值为null则不填充
+> - 字段必须声明@TableField注解
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+****
+
 ### spring-security
 
 #### 项目整合
@@ -246,7 +341,9 @@ public static void verifyToken(String token, String secret) {
 > 参考https://www.bezkoder.com/spring-boot-vue-js-authentication-jwt-spring-security/
 
 
+
 // todo
+
 #### security流程
 
 ##### 一、springboot项目中整合

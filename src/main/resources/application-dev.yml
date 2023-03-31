@@ -58,6 +58,10 @@ spring:
         max-idle: 10
         min-idle: 1
         time-between-eviction-runs: 10s
+  #默认默认上传文件大小1m，修改为10MB
+  servlet:
+    multipart:
+      max-file-size: 10MB
 mybatis-plus:
   #指定xml路径，否则爆错
   mapper-locations: classpath:com/chen/**/mapper/xml/*.xml

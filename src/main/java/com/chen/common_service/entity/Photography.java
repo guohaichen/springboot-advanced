@@ -1,5 +1,8 @@
 package com.chen.common_service.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 /**
@@ -8,10 +11,14 @@ import lombok.Data;
  */
 @Data
 public class Photography {
+    @TableId(value = "photography_id")
+    @TableField(value = "photography_id", fill = FieldFill.INSERT)
     private String photographyId;
 
     //创建人
     private String userId;
+
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
 
     private java.util.Date createTime;
 
