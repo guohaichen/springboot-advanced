@@ -6,8 +6,10 @@ import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.mapper.UserLoginMapper;
 import com.chen.common_service.service.IUserLoginService;
+import com.chen.common_service.vo.UserInfo;
 import com.chen.utils.JWTUtils;
 import com.chen.utils.TokenUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -44,7 +46,11 @@ public class UserLoginServiceImpl extends ServiceImpl<UserLoginMapper, UserLogin
             TokenUtils tokenUtils = new TokenUtils(redisTemplate);
             String token = JWTUtils.buildToken(username,secret);
             tokenUtils.putTokenWithExpiration(token);
-            return Result.OK(token);
+            //update-- 给客户端返回用户的基本信息
+            UserInfo userInfo = new UserInfo();
+            BeanUtils.copyProperties(userLogin, userInfo);
+            userInfo.setToken(token);
+            return Result.OK(userInfo);
         } else {
             return Result.error("用户名或密码错误");
         }

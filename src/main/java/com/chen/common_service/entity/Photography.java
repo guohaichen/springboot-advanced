@@ -19,7 +19,6 @@ public class Photography {
     private String userId;
 
     @TableField(value = "create_time", fill = FieldFill.INSERT)
-
     private java.util.Date createTime;
 
     //存储路径
