@@ -22,7 +22,7 @@ public class Photography {
     private java.util.Date createTime;
 
     //存储路径
-    private String src;
+    private String imgUrl;
 
     //描述
     private String description;

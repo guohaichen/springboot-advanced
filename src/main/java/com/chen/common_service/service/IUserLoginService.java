@@ -9,5 +9,5 @@ import com.chen.common_service.entity.UserLogin;
  * @create 2023-03-20
  */
 public interface IUserLoginService extends IService<UserLogin> {
-    Result<?> validatePassword(String username, String password);
+    Result<?> login(String username, String password);
 }

@@ -30,12 +30,11 @@ public class Result<T> {
      */
     private T data;
 
-    public static <T> Result<T> OK(T data) {
+    public static <T> Result<T> OK(String msg) {
         Result<T> r = new Result<>();
         r.setSuccess(true);
-        r.setSuccess(true);
         r.setCode(CODE_200);
-        r.setData(data);
+        r.setMessage(msg);
         return r;
     }
 

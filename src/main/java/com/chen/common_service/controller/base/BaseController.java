@@ -50,7 +50,7 @@ public class BaseController {
         log.info("文件最终路径:{}", saveFile);
         try {
             multipartFile.transferTo(saveFile);
-            return Result.OK("上传成功!", saveFile);
+            return Result.OK("上传成功!", filename);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
