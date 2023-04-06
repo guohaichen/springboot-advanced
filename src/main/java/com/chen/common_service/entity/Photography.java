@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class Photography {
     @TableId(value = "photography_id")
-    @TableField(value = "photography_id", fill = FieldFill.INSERT)
+//    @TableField(value = "photography_id", fill = FieldFill.INSERT)
     private String photographyId;
 
     //创建人

@@ -38,7 +38,6 @@ public class BaseController {
             }
         }
         String filename = multipartFile.getOriginalFilename();
-        log.info("filename:{}", filename);
         if (filename != null && filename.contains(".")) {
             //保证文件唯一
             filename = filename.substring(0, filename.lastIndexOf(".")) + "-" + System.currentTimeMillis() + filename.substring(filename.lastIndexOf("."));
@@ -50,7 +49,7 @@ public class BaseController {
         log.info("文件最终路径:{}", saveFile);
         try {
             multipartFile.transferTo(saveFile);
-            return Result.OK("上传成功!", filename);
+            return Result.OK("上传成功!", path + File.separator + filename);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

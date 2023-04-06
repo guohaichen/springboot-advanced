@@ -29,6 +29,9 @@ public class TokenInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("Authorization");
 //        log.info("request intercepted");
+        if (token == null){
+            return false;
+        }
         //验证token是否过期
         String redisToken = redisTemplate.opsForValue().get(token);
         if (redisToken ==null){

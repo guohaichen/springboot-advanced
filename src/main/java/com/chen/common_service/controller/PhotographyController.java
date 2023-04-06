@@ -1,10 +1,10 @@
 package com.chen.common_service.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.Photography;
 import com.chen.common_service.mapper.PhotographyMapper;
+import com.chen.common_service.service.IPhotographyService;
 import com.chen.common_service.vo.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +24,13 @@ public class PhotographyController {
     @Autowired
     private PhotographyMapper photographyMapper;
 
+    @Autowired
+    private IPhotographyService iPhotographyService;
+
     @GetMapping("/photography")
     public Result<?> getPhotography(Photography photography) {
-        LambdaQueryWrapper<Photography> queryWrapper = new LambdaQueryWrapper<>();
-        return Result.OK("查询成功", photographyMapper.selectList(queryWrapper));
+        //对image src的url 处理
+        return iPhotographyService.listPhotography(photography);
     }
 
     @PostMapping("/photography")

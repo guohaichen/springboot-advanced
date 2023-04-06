@@ -1,10 +1,15 @@
 package com.chen.common_service.service.imlp;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.Photography;
 import com.chen.common_service.mapper.PhotographyMapper;
 import com.chen.common_service.service.IPhotographyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author cgh
@@ -12,4 +17,26 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class PhotographyServiceImpl extends ServiceImpl<PhotographyMapper, Photography> implements IPhotographyService {
+
+    //文件保存的路径
+    public static final String imgUrlPrefix = "http://localhost:9090/image/";
+
+    @Autowired
+    private PhotographyMapper photographyMapper;
+
+    @Override
+    public Result<?> listPhotography(Photography photography) {
+        List<Photography> photographyList = photographyMapper.selectList(new LambdaQueryWrapper<Photography>());
+        for (Photography one : photographyList) {
+            String url = one.getImgUrl();
+            one.setImgUrl(completeFilePath(url));
+        }
+        return Result.OK("查询成功", photographyList);
+    }
+
+    //拼接文件的全路径
+    public String completeFilePath(String imgUrl) {
+        return imgUrlPrefix + imgUrl;
+    }
+
 }
