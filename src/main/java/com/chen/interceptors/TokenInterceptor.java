@@ -1,5 +1,6 @@
 package com.chen.interceptors;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Instant;
 
 /**
  * @author cgh
@@ -36,7 +38,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         String redisToken = redisTemplate.opsForValue().get(token);
         if (redisToken ==null){
             response.getWriter().write("{'code':500,'msg':''token已过期}'}");
-            throw new RuntimeException("token已过期");
+            throw new TokenExpiredException("token已过期",Instant.now());
         }
         try {
             //校验token的有效性，任何校验上的错误都会抛出异常。

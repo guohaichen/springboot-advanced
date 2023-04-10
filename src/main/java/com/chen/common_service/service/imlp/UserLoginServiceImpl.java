@@ -8,6 +8,7 @@ import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.mapper.UserLoginMapper;
 import com.chen.common_service.service.IUserLoginService;
 import com.chen.common_service.vo.UserInfo;
+import org.apache.shiro.util.StringUtils;
 import com.chen.utils.JWTUtils;
 import com.chen.utils.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -43,20 +44,21 @@ public class UserLoginServiceImpl extends ServiceImpl<UserLoginMapper, UserLogin
             return Result.error("用户不存在");
         }
         String userPwd = userLogin.getPassword();
-        if (userPwd.equals(password)) {
+        if (StringUtils.hasLength(userPwd) && userPwd.equals(password)) {
             //v1模拟一个token,先返回
             //String token = UUID.randomUUID().toString().replace("-","").substring(0,10)+"-"+new Date().getTime();
             //v2.使用了jwt生成token，并将token放入redis中
             TokenUtils tokenUtils = new TokenUtils(redisTemplate);
-            String token = JWTUtils.buildToken(username,secret);
+            String token = JWTUtils.buildToken(username, secret);
             tokenUtils.putTokenWithExpiration(token);
+
             //update-- 给客户端返回用户的基本信息
             UserInfo userInfo = new UserInfo();
             BeanUtils.copyProperties(userLogin, userInfo);
             userInfo.setToken(token);
-            //用户信息存入redis一份（未加密）
-            putUserInfoInRedis(userLogin.getId(),userInfo);
-            return Result.OK("验证成功",userInfo);
+            //用户信息hash结构存入redis一份（未加密）
+            putUserInfoInRedis(userLogin.getId(), userInfo);
+            return Result.OK("验证成功", userInfo);
         } else {
             return Result.error("用户名或密码错误");
         }
@@ -64,13 +66,15 @@ public class UserLoginServiceImpl extends ServiceImpl<UserLoginMapper, UserLogin
 
     /**
      * 用户信息存入redis一份
-     * @param key id
+     *
+     * @param key      id
      * @param userInfo 用户信息
      */
-    public void putUserInfoInRedis(String key, UserInfo userInfo){
+    public void putUserInfoInRedis(String key, UserInfo userInfo) {
+        //object->map
         String jsonString = JSON.toJSONString(userInfo);
         Map map = JSON.parseObject(jsonString, Map.class);
-        log.info("user map:{}",map.toString());
-        redisTemplate.opsForHash().putAll(key,map);
+        log.info("user map:{}", map.toString());
+        redisTemplate.opsForHash().putAll(key, map);
     }
 }

@@ -18,7 +18,7 @@ import java.util.List;
 @Service
 public class PhotographyServiceImpl extends ServiceImpl<PhotographyMapper, Photography> implements IPhotographyService {
 
-    //文件保存的路径
+    //文件保存的路径(浏览器阻止了访问本地文件资源。故使用http服务访问，已做配置)
     public static final String imgUrlPrefix = "http://localhost:9090/image/";
 
     @Autowired

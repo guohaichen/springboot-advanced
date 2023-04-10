@@ -3,6 +3,7 @@ package com.chen.utils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class JWTUtils {
      * @param username 用户名or手机号
      * @return token
      */
-    public static String buildToken(String username,String secret) {
+    public static String buildToken(String username, String secret) {
         log.info("secret:\t{}", secret);
         String token = JWT.create()
                 .withClaim("username", username) //payload
@@ -39,8 +40,13 @@ public class JWTUtils {
      */
     public static void verifyToken(String token, String secret) {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret)).build();
-        DecodedJWT decodedJWT = jwtVerifier.verify(token);
-
+        DecodedJWT decodedJWT = null;
+        try {
+            decodedJWT = jwtVerifier.verify(token);
+        } catch (InvalidClaimException e) {
+            throw new InvalidClaimException("用户信息错误!");
+        }
+        //payload信息
         Map<String, Claim> claims = decodedJWT.getClaims();
 //        claims.forEach((k, v) -> log.info("k:{}\t,v:{}", k, v));
     }
