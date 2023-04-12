@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author cgh
  * @create 2023-04-10
+ * 自定义Realm 重写认证和授权的方法
  */
 @Slf4j
 @Component
@@ -34,6 +35,7 @@ public class ShiroRealm extends AuthorizingRealm {
 
     /**
      * 登录认证
+     * subject.login时 会一步一步委托到Realm的doGetAuthenticationInfo方法来。
      *
      * @param token the authentication token containing the user's principal and credentials.
      * @return
@@ -41,22 +43,17 @@ public class ShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        //1. 获取用户信息
-        UserLogin userToken = (UserLogin) token.getPrincipal();
-        log.info("token coming ,user token:{}", userToken);
+        //1. 获取用户信息 getPrincipal调的时getUsername,getCredentials调的是getPassword
+        String tokenName = (String) token.getPrincipal();
+        log.info("token authenticate, user token: {}", tokenName);
         //2. 调用业务层获取用户信息
-        LambdaQueryWrapper<UserLogin> queryWrapper = new LambdaQueryWrapper<UserLogin>().eq(UserLogin::getPhone, userToken.getPhone());
+        LambdaQueryWrapper<UserLogin> queryWrapper = new LambdaQueryWrapper<UserLogin>().eq(UserLogin::getUsername, tokenName);
         UserLogin one = userLoginService.getOne(queryWrapper);
         //3. 用户信息判断
-        if (one != null) {
-            AuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
-                    token.getPrincipal(),
-                    one.getPassword(),
-                    // 指定加盐信息
-                    ByteSource.Util.bytes("salt"),
-                    one.getUsername()
+        if (one != null && one.getPassword() != null) {
+            return new SimpleAuthenticationInfo(
+                    tokenName, one.getPassword(), getName()
             );
-            return authenticationInfo;
         }
         return null;
     }

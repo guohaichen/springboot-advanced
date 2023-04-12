@@ -31,12 +31,14 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         //给filter设置安全管理器
         shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
-        shiroFilterFactoryBean.setLoginUrl("/auth/unauth");
+        shiroFilterFactoryBean.setLoginUrl("/auth/loginByShiro");
 
         //配置不会被拦截的链接 顺序判断
         Map<String, String> filterChainMap = new LinkedHashMap<>();
         filterChainMap.put("/auth/login", "anon"); //登录接口排除
-        filterChainMap.put("/**", "authc");
+        filterChainMap.put("/auth/loginByShiro", "anon"); //登录接口排除
+        filterChainMap.put("/auth/registryByShiro", "anon"); //登录接口排除
+//        filterChainMap.put("/**", "authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainMap);
         return shiroFilterFactoryBean;
     }

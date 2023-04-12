@@ -4,8 +4,11 @@ import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.service.IUserLoginService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,23 +39,30 @@ public class LoginController {
         return iUserLoginService.login(username, hashPwd);
     }
 
-    @PostMapping("/loginByShiro")
-    public Result<?> userLoginByShiro(@RequestBody UserLogin userLogin){
-    new UsernamePasswordToken()
-
+    @PostMapping("/registry")
+    public Result<?> userRegistry(@RequestBody UserLogin user) {
+        log.info("user:{}", user.toString());
+        user.setPassword(BCrypt.hashpw(user.getPassword(), salt));
+        boolean save = iUserLoginService.save(user);
+        if (save) {
+            return Result.OK();
+        } else {
+            return Result.error("注册失败");
+        }
     }
 
-
-
-    @PostMapping("/registry")
-    public Result<?> userRegistry(@RequestBody UserLogin user){
-        log.info("user:{}",user.toString());
-        user.setPassword(BCrypt.hashpw(user.getPassword(),salt));
-        boolean save = iUserLoginService.save(user);
-        if (save){
-            return Result.OK();
-        }else {
-            return Result.error("注册失败");
+    @PostMapping("/loginByShiro")
+    public Result<?> userLoginByShiro(@RequestBody UserLogin user) {
+        String password = user.getPassword();
+        String username = user.getUsername();
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        Subject subject = SecurityUtils.getSubject();
+        try {
+            subject.login(token);
+            return Result.OK("登陆成功");
+        } catch (AuthenticationException e) {
+            log.error("登录信息有误:{}",e.getMessage());
+            return Result.error("登录信息有误");
         }
     }
 
@@ -62,17 +72,23 @@ public class LoginController {
      * @return
      */
     @PostMapping("/registryByShiro")
-    public Result<?> registryBtShiro(@RequestBody UserLogin user){
-        log.info("user:{}",user.toString());
+    public Result<?> registryBtShiro(@RequestBody UserLogin user) {
+        log.info("user:{}", user.toString());
         //shiro密码加盐
-        ByteSource byteSource = ByteSource.Util.bytes(salt);
+//        ByteSource byteSource = ByteSource.Util.bytes(salt);
         //生成密码
-        SimpleHash md5 = new SimpleHash("md5", user, byteSource, 3);
+//        SimpleHash password = new SimpleHash("md5", user.getPassword(), byteSource, 3);
+        boolean save = iUserLoginService.save(user);
+        if (save){
+            return Result.OK("注册成功");
+        }else {
+            return Result.error("注册失败");
+        }
     }
 
     @RequestMapping("/unauth")
     @ResponseBody
-    public Result<?> unAuth(){
+    public Result<?> unAuth() {
         return Result.noAuth("未认证");
     }
 }
