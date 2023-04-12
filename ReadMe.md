@@ -241,7 +241,134 @@ public static void verifyToken(String token, String secret) {
 - SignatureVerificationException
 - TokenExpiredException
 
-****
+### 整合shiro
+
+#### 身份认证流程
+
+1. shiro把用户的数据封装成token,token一般封装着用户名，密码等信息；
+
+2. 使用Subject获取到封装着用户的数据的标识token;
+
+3. Subject把token交给SecurityManager,在SecurityManager安全中心内，SecurityManager把标识token委托给认证器Authenticator进行身份验证。认证器的作用一般是用来指定如何验证，它规定了本次认证使用到了哪些Realm;
+
+4. 认证器Authenticator将传入的标识token，与数据源Realm对比，验证token并返回；
+
+#### 流程Demo
+
+1. 引入需要的依赖
+
+```yaml
+<dependency>
+    <groupId>org.apache.shiro</groupId>
+    <artifactId>shiro-core</artifactId>
+    <version>${shiro-core-version}</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.shiro</groupId>
+    <artifactId>shiro-spring-boot-web-starter</artifactId>
+    <version>${shiro-starter-version}</version>
+</dependency>
+```
+
+2. 自定义Realm，重写认证和授权的方法（先讲认证）
+
+```java
+@Component
+public class ShiroRealm extends AuthorizingRealm {
+
+    @Autowired
+    private IUserLoginService userLoginService;
+
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        log.info("shiro 权限认证");
+        return null;
+    }
+
+    /**
+     * 登录认证
+     * subject.login时 会一步一步委托到Realm的doGetAuthenticationInfo方法来。
+     * @param token the authentication token containing the user's principal and credentials.
+     * @return
+     * @throws AuthenticationException
+     */
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        //1. 获取用户信息 getPrincipal调的时getUsername,getCredentials调的是getPassword
+        String tokenName = (String) token.getPrincipal();
+        log.info("token authenticate, user token: {}", tokenName);
+        //2. 调用业务层获取用户信息
+        LambdaQueryWrapper<UserLogin> queryWrapper = new LambdaQueryWrapper<UserLogin>().eq(UserLogin::getUsername, tokenName);
+        UserLogin one = userLoginService.getOne(queryWrapper);
+        //3. 用户信息判断
+        if (one != null && one.getPassword() != null) {
+            return new SimpleAuthenticationInfo(
+                    tokenName, one.getPassword(), getName()
+            );
+        }
+        return null;
+    }
+}
+```
+
+3. 配置ShiroConfig
+
+```java
+@Configuration
+public class ShiroConfig {
+
+    @Autowired
+    private ShiroRealm realm;
+
+    //1.创建shiroFilter 负责拦截所有请求
+    @Bean(name = "shiroFilterFactoryBean")
+    public ShiroFilterFactoryBean getShiroFilterFactory(DefaultWebSecurityManager defaultWebSecurityManager) {
+        ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
+        //给filter设置安全管理器
+        shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
+        shiroFilterFactoryBean.setLoginUrl("/auth/loginByShiro");
+
+        //配置不会被拦截的链接 顺序判断
+        Map<String, String> filterChainMap = new LinkedHashMap<>();
+        filterChainMap.put("/auth/login", "anon"); //登录接口排除
+        filterChainMap.put("/auth/loginByShiro", "anon"); //登录接口排除
+        filterChainMap.put("/auth/registryByShiro", "anon"); //登录接口排除
+//        filterChainMap.put("/**", "authc");
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainMap);
+        return shiroFilterFactoryBean;
+    }
+
+    //2.配置WebSecurityManager
+    @Bean
+    public DefaultWebSecurityManager getDefaultWebSecurityManager() {
+        DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
+        //给安全管理器设置
+        defaultWebSecurityManager.setRealm(realm);
+        return defaultWebSecurityManager;
+    }
+}
+```
+
+4. 代码测试
+
+```java
+ @PostMapping("/loginByShiro")
+    public Result<?> userLoginByShiro(@RequestBody UserLogin user) {
+        String password = user.getPassword();
+        String username = user.getUsername();
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        Subject subject = SecurityUtils.getSubject();
+        try {
+            subject.login(token);
+            return Result.OK("登陆成功");
+        } catch (AuthenticationException e) {
+            log.error("登录信息有误:{}",e.getMessage());
+            return Result.error("登录信息有误");
+        }
+    }
+```
+
+
 
 ### CRUD基础篇
 
