@@ -4,12 +4,12 @@ import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.service.IUserLoginService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.util.ByteSource;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -36,6 +36,14 @@ public class LoginController {
         return iUserLoginService.login(username, hashPwd);
     }
 
+    @PostMapping("/loginByShiro")
+    public Result<?> userLoginByShiro(@RequestBody UserLogin userLogin){
+    new UsernamePasswordToken()
+
+    }
+
+
+
     @PostMapping("/registry")
     public Result<?> userRegistry(@RequestBody UserLogin user){
         log.info("user:{}",user.toString());
@@ -46,5 +54,25 @@ public class LoginController {
         }else {
             return Result.error("注册失败");
         }
+    }
+
+    /**
+     * 用户注册，shiro方式
+     * @param user 前端请求体user
+     * @return
+     */
+    @PostMapping("/registryByShiro")
+    public Result<?> registryBtShiro(@RequestBody UserLogin user){
+        log.info("user:{}",user.toString());
+        //shiro密码加盐
+        ByteSource byteSource = ByteSource.Util.bytes(salt);
+        //生成密码
+        SimpleHash md5 = new SimpleHash("md5", user, byteSource, 3);
+    }
+
+    @RequestMapping("/unauth")
+    @ResponseBody
+    public Result<?> unAuth(){
+        return Result.noAuth("未认证");
     }
 }
