@@ -243,7 +243,13 @@ public static void verifyToken(String token, String secret) {
 
 ### 整合shiro
 
-#### 身份认证流程
+#### 身份验证
+
+**principals**：身份，即主体的标识属性，唯一即可。一个主体可以有多个`principals`,但只有一个`Primary principals`，一般是用户名/手机号。
+
+**credentials**：证明/平获赠，即只有主体知道的安全值，如密码/数字证书等。
+
+#### 身份验证流程
 
 1. shiro把用户的数据封装成token,token一般封装着用户名，密码等信息；
 

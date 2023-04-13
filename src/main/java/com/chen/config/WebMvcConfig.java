@@ -27,6 +27,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/**") //拦截所有请求
                 .excludePathPatterns("/image/**")
+                .excludePathPatterns("/auth/loginByShiro")
                 .excludePathPatterns("/auth/login"); //放行登录接口，否则...
     }
 

@@ -30,7 +30,6 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("Authorization");
-//        log.info("request intercepted");
         if (token == null){
             return false;
         }

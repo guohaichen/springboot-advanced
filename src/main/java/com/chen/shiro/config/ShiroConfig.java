@@ -4,12 +4,8 @@ import com.chen.shiro.ShiroRealm;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,7 +34,7 @@ public class ShiroConfig {
         filterChainMap.put("/auth/login", "anon"); //登录接口排除
         filterChainMap.put("/auth/loginByShiro", "anon"); //登录接口排除
         filterChainMap.put("/auth/registryByShiro", "anon"); //登录接口排除
-//        filterChainMap.put("/**", "authc");
+        filterChainMap.put("/**", "authcBearer");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainMap);
         return shiroFilterFactoryBean;
     }
@@ -52,7 +48,7 @@ public class ShiroConfig {
         return defaultWebSecurityManager;
     }
 
-    @Bean
+   /* @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
@@ -78,5 +74,5 @@ public class ShiroConfig {
         // 设置监听器的优先级
         bean.setOrder(0);
         return bean;
-    }
+    }*/
 }

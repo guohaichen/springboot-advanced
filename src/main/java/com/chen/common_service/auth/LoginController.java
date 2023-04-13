@@ -3,15 +3,16 @@ package com.chen.common_service.auth;
 import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.service.IUserLoginService;
+import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ByteSource;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -24,6 +25,13 @@ public class LoginController {
     //从配置文件获取salt;
     @Value("${encode.salt}")
     private String salt;
+
+    //secret
+    @Value("${token.secret}")
+    private String secret;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Resource
     private IUserLoginService iUserLoginService;
@@ -58,8 +66,13 @@ public class LoginController {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         Subject subject = SecurityUtils.getSubject();
         try {
+            //shiro登录方法，自定义realm处理身份验证
             subject.login(token);
-            return Result.OK("登陆成功");
+            //返回jwtToken
+            String principal = (String) SecurityUtils.getSubject().getPrincipal();
+            String jwtToken = JWTUtils.buildToken(principal, secret);
+            redisTemplate.opsForValue().set(jwtToken,jwtToken);
+            return Result.OK("登录成功",jwtToken);
         } catch (AuthenticationException e) {
             log.error("登录信息有误:{}",e.getMessage());
             return Result.error("登录信息有误");
