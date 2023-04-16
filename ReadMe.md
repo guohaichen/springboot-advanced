@@ -259,6 +259,31 @@ public static void verifyToken(String token, String secret) {
 
 4. 认证器Authenticator将传入的标识token，与数据源Realm对比，验证token并返回；
 
+#### **Shiro过滤器**
+
+默认的过滤器在org.apache.shiro.web.filter.mgt包下，**DefaultFilter**。
+
+```java
+public enum DefaultFilter {
+
+    anon(AnonymousFilter.class),
+    authc(FormAuthenticationFilter.class),
+    authcBasic(BasicHttpAuthenticationFilter.class),
+    authcBearer(BearerHttpAuthenticationFilter.class),
+    logout(LogoutFilter.class),
+    noSessionCreation(NoSessionCreationFilter.class),
+    perms(PermissionsAuthorizationFilter.class),
+    port(PortFilter.class),
+    rest(HttpMethodPermissionFilter.class),
+    roles(RolesAuthorizationFilter.class),
+    ssl(SslFilter.class),
+    user(UserFilter.class),
+    invalidRequest(InvalidRequestFilter.class);
+}
+```
+
+
+
 #### 流程Demo
 
 1. 引入需要的依赖
