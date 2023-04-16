@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.service.IUserLoginService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -26,6 +23,17 @@ public class ShiroRealm extends AuthorizingRealm {
     @Autowired
     private IUserLoginService userLoginService;
 
+
+    @Override
+    public String getName() {
+        return "ShiroRealm";
+    }
+
+    @Override
+    public boolean supports(AuthenticationToken token) {
+        return token instanceof UsernamePasswordToken;
+    }
+
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         log.info("shiro 权限认证");
@@ -42,17 +50,20 @@ public class ShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        //1. 获取用户信息 getPrincipal调的时getUsername,getCredentials调的是getPassword
+        //1. 获取用户信息 getPrincipal调的是getUsername,getCredentials调的是getPassword
         String tokenName = (String) token.getPrincipal();
-        log.info("token authenticate, user token: {}", tokenName);
+        String tokenPassword = (String) token.getPrincipal();
+        log.info("token authenticate, user tokenUsername: {}, tokenPassword:{} ", tokenName, tokenPassword);
         //2. 调用业务层获取用户信息
         LambdaQueryWrapper<UserLogin> queryWrapper = new LambdaQueryWrapper<UserLogin>().eq(UserLogin::getUsername, tokenName);
         UserLogin one = userLoginService.getOne(queryWrapper);
-        //3. 用户信息判断
-        if (one != null && one.getPassword() != null) {
-            return new SimpleAuthenticationInfo(
-                    tokenName, one.getPassword(), getName()
+        //3. 验证db user 和 token里面的user
+        if (one != null && one.getPassword() != null && tokenPassword.equals(one.getPassword())) {
+            SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(
+                    tokenName, tokenPassword, getName()
             );
+            log.info(simpleAuthenticationInfo.toString());
+            return simpleAuthenticationInfo;
         }
         return null;
     }

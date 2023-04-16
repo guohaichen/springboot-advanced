@@ -4,6 +4,13 @@ import com.chen.common_service.entity.DynamicUser;
 import com.chen.common_service.mapper.DynamicUserMapper;
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.Authenticator;
+import org.apache.shiro.mgt.SubjectDAO;
+import org.apache.shiro.mgt.SubjectFactory;
+import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -19,6 +26,7 @@ import java.util.Map;
  */
 @RestController
 @Slf4j
+@CrossOrigin
 @RequestMapping("/user")
 public class HelloController {
 
@@ -50,6 +58,9 @@ public class HelloController {
     @GetMapping("/get/token")
     public String getName(@RequestHeader("Authorization") String token) {
         log.info("request's token from headers:{}", token);
+        Subject subject = SecurityUtils.getSubject();
+        boolean authenticated = subject.isAuthenticated();
+        log.info("authenticated:\t{}", authenticated);
         return redisTemplate.opsForValue().get(token);
     }
 

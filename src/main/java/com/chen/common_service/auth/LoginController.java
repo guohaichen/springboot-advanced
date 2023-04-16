@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,7 @@ public class LoginController {
         try {
             //shiro登录方法，自定义realm处理身份验证
             subject.login(token);
+            log.info("认证通过:{}",subject.isAuthenticated());
             //返回jwtToken
             String principal = (String) SecurityUtils.getSubject().getPrincipal();
             String jwtToken = JWTUtils.buildToken(principal, secret);

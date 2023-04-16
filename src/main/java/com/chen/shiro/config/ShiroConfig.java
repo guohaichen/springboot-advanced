@@ -3,10 +3,13 @@ package com.chen.shiro.config;
 import com.chen.shiro.ShiroRealm;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.Filter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -21,6 +24,7 @@ public class ShiroConfig {
     @Autowired
     private ShiroRealm realm;
 
+
     //1.创建shiroFilter 负责拦截所有请求
     @Bean(name = "shiroFilterFactoryBean")
     public ShiroFilterFactoryBean getShiroFilterFactory(DefaultWebSecurityManager defaultWebSecurityManager) {
@@ -34,7 +38,9 @@ public class ShiroConfig {
         filterChainMap.put("/auth/login", "anon"); //登录接口排除
         filterChainMap.put("/auth/loginByShiro", "anon"); //登录接口排除
         filterChainMap.put("/auth/registryByShiro", "anon"); //登录接口排除
-        filterChainMap.put("/**", "authcBearer");
+        filterChainMap.put("/user/get/token", "anon"); //登录接口排除
+        //拦截除上面的所有请求，都需要登录
+        filterChainMap.put("/**", "authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainMap);
         return shiroFilterFactoryBean;
     }
@@ -48,31 +54,5 @@ public class ShiroConfig {
         return defaultWebSecurityManager;
     }
 
-   /* @Bean
-    public FilterRegistrationBean<CorsFilter> corsFilter() {
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        final CorsConfiguration config = new CorsConfiguration();
-        // 允许cookies跨域
-        config.setAllowCredentials(true);
-        // #允许向该服务器提交请求的URI，*表示全部允许，在SpringMVC中，如果设成*，会自动转成当前请求头中的Origin
-        config.addAllowedOriginPattern("*");
-        // #允许访问的头信息,*表示全部
-        config.addAllowedHeader("*");
-        // 预检请求的缓存时间（秒），即在这个时间段里，对于相同的跨域请求不会再预检了
-        config.setMaxAge(18000L);
-        // 允许提交请求的方法，*表示全部允许
-        config.addAllowedMethod("OPTIONS");
-        config.addAllowedMethod("HEAD");
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("DELETE");
-        config.addAllowedMethod("PATCH");
-        source.registerCorsConfiguration("/**", config);
 
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        // 设置监听器的优先级
-        bean.setOrder(0);
-        return bean;
-    }*/
 }

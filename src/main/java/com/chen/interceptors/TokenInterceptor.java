@@ -30,15 +30,16 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("Authorization");
+        log.info("token interceptor");
         if (token == null){
             return false;
         }
         //验证token是否过期
         String redisToken = redisTemplate.opsForValue().get(token);
-        if (redisToken ==null){
+        /*if (redisToken ==null){
             response.getWriter().write("{'code':500,'msg':''token已过期}'}");
             throw new TokenExpiredException("token已过期",Instant.now());
-        }
+        }*/
         try {
             //校验token的有效性，任何校验上的错误都会抛出异常。
             JWTUtils.verifyToken(token, secret);
