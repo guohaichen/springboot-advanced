@@ -1,15 +1,11 @@
 package com.chen.common_service.auth;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.service.IUserLoginService;
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.subject.Subject;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,6 +60,8 @@ public class LoginController {
     public Result<?> userLoginByShiro(@RequestBody UserLogin user) {
         String password = user.getPassword();
         String username = user.getUsername();
+
+        /* v1测试login使用，现正常走验证
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         Subject subject = SecurityUtils.getSubject();
         try {
@@ -77,6 +75,16 @@ public class LoginController {
             return Result.OK("登录成功",jwtToken);
         } catch (AuthenticationException e) {
             log.error("登录信息有误:{}",e.getMessage());
+            return Result.error("登录信息有误");
+        }*/
+        UserLogin userLogin = iUserLoginService.getOne(
+                new LambdaQueryWrapper<UserLogin>().
+                        eq(UserLogin::getUsername, username));
+        if (userLogin.getPassword()!=null && password.equals(userLogin.getPassword())){
+            String jwtToken = JWTUtils.buildToken(username, secret);
+            redisTemplate.opsForValue().set(jwtToken,jwtToken);
+            return Result.OK("登录成功",jwtToken);
+        }else {
             return Result.error("登录信息有误");
         }
     }
@@ -94,9 +102,9 @@ public class LoginController {
         //生成密码
 //        SimpleHash password = new SimpleHash("md5", user.getPassword(), byteSource, 3);
         boolean save = iUserLoginService.save(user);
-        if (save){
+        if (save) {
             return Result.OK("注册成功");
-        }else {
+        } else {
             return Result.error("注册失败");
         }
     }

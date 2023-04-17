@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.InvalidClaimException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
@@ -49,5 +50,15 @@ public class JWTUtils {
         //payload信息
         Map<String, Claim> claims = decodedJWT.getClaims();
 //        claims.forEach((k, v) -> log.info("k:{}\t,v:{}", k, v));
+    }
+
+    public static String getUserName(String token){
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            log.info("jwt.getClaim(username).asString: {}",jwt.getClaim("username").asString());
+            return jwt.getClaim("username").asString();
+        } catch (JWTDecodeException e) {
+            throw new RuntimeException("无用户名错误");
+        }
     }
 }
