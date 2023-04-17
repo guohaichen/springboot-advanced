@@ -24,6 +24,7 @@ public class ShiroConfig {
     @Autowired
     private ShiroRealm realm;
 
+
     //1.创建shiroFilter 负责拦截所有请求
     @Bean(name = "shiroFilterFactoryBean")
     public ShiroFilterFactoryBean getShiroFilterFactory(DefaultWebSecurityManager defaultWebSecurityManager) {
