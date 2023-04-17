@@ -19,12 +19,12 @@ import java.time.Instant;
  * 自定义拦截器
  */
 @Slf4j
-@Component
+//@Component
 public class TokenInterceptor implements HandlerInterceptor {
     @Value("${token.secret}")
     private String secret;
 
-    @Autowired
+//    @Autowired
     private StringRedisTemplate redisTemplate;
 
     @Override
@@ -41,10 +41,8 @@ public class TokenInterceptor implements HandlerInterceptor {
             throw new TokenExpiredException("token已过期",Instant.now());
         }*/
         try {
-            //校验token的有效性，任何校验上的错误都会抛出异常。
-            JWTUtils.verifyToken(token, secret);
-            //true放行
-            return true;
+            //校验token的有效性，任何校验上的错误都会抛出异常。验证成功放行
+            return JWTUtils.verifyToken(token, secret);
         } catch (Exception e) {
             log.warn("token exception:{}", e.getMessage());
             //返回json数据

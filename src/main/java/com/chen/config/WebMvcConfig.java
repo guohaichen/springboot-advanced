@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    @Autowired
+    /*@Autowired
     private TokenInterceptor tokenInterceptor;
 
     @Override
@@ -29,7 +29,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/image/**")
                 .excludePathPatterns("/auth/loginByShiro")
                 .excludePathPatterns("/auth/login"); //放行登录接口，否则...
-    }
+    }*/
 
     /**
      * 映射图片url，因为图片是存在本地的，前端img src中如果是访问的本地资源的话，会报错，Not allowed to load local resource
