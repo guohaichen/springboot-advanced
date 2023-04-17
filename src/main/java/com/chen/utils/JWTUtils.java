@@ -39,17 +39,18 @@ public class JWTUtils {
     /**
      * @param token
      */
-    public static void verifyToken(String token, String secret) {
+    public static boolean verifyToken(String token, String secret) {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret)).build();
         DecodedJWT decodedJWT = null;
         try {
             decodedJWT = jwtVerifier.verify(token);
+            return true;
         } catch (InvalidClaimException e) {
-            throw new InvalidClaimException("用户信息错误!");
+            return false;
         }
         //payload信息
-        Map<String, Claim> claims = decodedJWT.getClaims();
-//        claims.forEach((k, v) -> log.info("k:{}\t,v:{}", k, v));
+        //Map<String, Claim> claims = decodedJWT.getClaims();
+        //claims.forEach((k, v) -> log.info("k:{}\t,v:{}", k, v));
     }
 
     public static String getUserName(String token){
@@ -58,7 +59,7 @@ public class JWTUtils {
             log.info("jwt.getClaim(username).asString: {}",jwt.getClaim("username").asString());
             return jwt.getClaim("username").asString();
         } catch (JWTDecodeException e) {
-            throw new RuntimeException("无用户名错误");
+            throw new RuntimeException("token解析错误");
         }
     }
 }

@@ -38,9 +38,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String jwtToken = httpServletRequest.getHeader("Authorization");
         log.info("token authorization: {}", jwtToken);
-        String userName = JWTUtils.getUserName(jwtToken);
-        log.info("decode jwtToken, username :{}", userName);
-        JwtToken token = new JwtToken(userName);
+        JwtToken token = new JwtToken(jwtToken);
         // 提交给realm进行登入，如果错误会抛出异常并被捕获
         getSubject(request, response).login(token);
         // 如果没有抛出异常则代表登入成功，返回true
@@ -61,11 +59,13 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         if (isLoginAttempt(request, response)) {
             try {
                 executeLogin(request, response);
+                return true;
             } catch (Exception e) {
                 response401(request, response);
             }
         }
-        return true;
+        //未携带token，不放行
+        return false;
     }
 
     /**

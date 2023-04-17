@@ -1,6 +1,7 @@
 package com.chen.shiro;
 
 import com.chen.common_service.service.IUserLoginService;
+import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -10,6 +11,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +22,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ShiroRealm extends AuthorizingRealm {
+
+    @Value("${token.secret}")
+    private String secret;
 
     @Autowired
     private IUserLoginService userLoginService;
@@ -53,19 +58,19 @@ public class ShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        //1. 获取用户信息 getPrincipal调的是getUsername,getCredentials调的是getPassword
-        String tokenName = (String) token.getPrincipal();
-        log.info("token authenticate, user tokenUsername: {}", tokenName);
-//        //2. 调用业务层获取用户信息
-//        LambdaQueryWrapper<UserLogin> queryWrapper = new LambdaQueryWrapper<UserLogin>().eq(UserLogin::getUsername, tokenName);
-//        UserLogin one = userLoginService.getOne(queryWrapper);
-        //3. 验证db user 和 token里面的user
-        if (tokenName != null ) {
-            SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(
-                    tokenName, tokenName, getName()
-            );
-            log.info(simpleAuthenticationInfo.toString());
-            return simpleAuthenticationInfo;
+        //0. 拿到token
+        String tokenString = token.getPrincipal().toString();
+        //1. 验证token
+        if (JWTUtils.verifyToken(tokenString,secret)) {
+            //验证成功
+            String username =  JWTUtils.getUserName(tokenString);
+            log.info("token authenticate, user's username: {}", username);
+            if (username != null ) {
+                //shiro默认的AuthenticatingRealm会对token进行校验，这里需要设置一致
+                return new SimpleAuthenticationInfo(
+                        tokenString, tokenString, getName()
+                );
+            }
         }
         return null;
     }
