@@ -80,17 +80,18 @@ public class LoginController {
         UserLogin userLogin = iUserLoginService.getOne(
                 new LambdaQueryWrapper<UserLogin>().
                         eq(UserLogin::getUsername, username));
-        if (userLogin.getPassword()!=null && password.equals(userLogin.getPassword())){
+        if (userLogin.getPassword() != null && password.equals(userLogin.getPassword())) {
             String jwtToken = JWTUtils.buildToken(username, secret);
-            redisTemplate.opsForValue().set(jwtToken,jwtToken);
-            return Result.OK("登录成功",jwtToken);
-        }else {
+            redisTemplate.opsForValue().set(jwtToken, jwtToken);
+            return Result.OK("登录成功", jwtToken);
+        } else {
             return Result.error("登录信息有误");
         }
     }
 
     /**
      * 用户注册，shiro方式
+     *
      * @param user 前端请求体user
      * @return
      */
@@ -112,6 +113,6 @@ public class LoginController {
     @RequestMapping("/unauth")
     @ResponseBody
     public Result<?> unAuth() {
-        return Result.noAuth("未认证");
+        return Result.noAuth("未认证，请登录!");
     }
 }

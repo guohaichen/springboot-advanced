@@ -243,11 +243,24 @@ public static void verifyToken(String token, String secret) {
 
 ### 整合shiro
 
+#### shiro详细架构
+
+| ![Shiro Architecture Diagram](ReadMe.assets/ShiroArchitecture.png) |
+| :----------------------------------------------------------: |
+
+**三个主要概念**：`Subject`、`SecuirtyManager`、`Realm`
+
+- Subject: 主体，代表了当前用户，与当前应用交互的都是Subject，即是一个抽象概念，所有Subject都绑定到SecurityManager,与Subjeect的所有交互都会委托给SecurityManager。
+- SecurityManager: 安全管理器，当与Subject交互时，实际上是SecurityManager幕后为任何Subject安全操作执行所有繁重的工作。
+- Realm: Shiro从Realm获取安全数据，当SecurityManager执行用户身份验证和授权时，Shiro从配置中的一个或多个Realm来执行。
+
 #### 身份验证
+
+> 在shiro中，用户需要提供principals和credentials给shiro,从而验证用户身份。
 
 **principals**：身份，即主体的标识属性，唯一即可。一个主体可以有多个`principals`,但只有一个`Primary principals`，一般是用户名/手机号。
 
-**credentials**：证明/平获赠，即只有主体知道的安全值，如密码/数字证书等。
+**credentials**：证明/凭证，即只有主体知道的安全值，如密码/数字证书等。
 
 #### 身份验证流程
 
@@ -289,11 +302,6 @@ public enum DefaultFilter {
 1. 引入需要的依赖
 
 ```yaml
-<dependency>
-    <groupId>org.apache.shiro</groupId>
-    <artifactId>shiro-core</artifactId>
-    <version>${shiro-core-version}</version>
-</dependency>
 <dependency>
     <groupId>org.apache.shiro</groupId>
     <artifactId>shiro-spring-boot-web-starter</artifactId>
@@ -362,9 +370,7 @@ public class ShiroConfig {
         //配置不会被拦截的链接 顺序判断
         Map<String, String> filterChainMap = new LinkedHashMap<>();
         filterChainMap.put("/auth/login", "anon"); //登录接口排除
-        filterChainMap.put("/auth/loginByShiro", "anon"); //登录接口排除
-        filterChainMap.put("/auth/registryByShiro", "anon"); //登录接口排除
-//        filterChainMap.put("/**", "authc");
+        filterChainMap.put("/**", "authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainMap);
         return shiroFilterFactoryBean;
     }
@@ -399,7 +405,17 @@ public class ShiroConfig {
     }
 ```
 
+#### 前后端分离整合篇
 
+> 前置问题
+>
+> 1. Shiro是基于session来做身份验证的。客户端第一次在做登录认证时，服务器响应头中会返回Set-Cookie: JSESSIONID=690B6F56FFB0618CE55B61ACD6B26496; Path=/; HttpOnly;客户端拿到此响应头会写入自己的Cookie中。注意这里客户端服务端指的是相同 协议+地址+端口号。如果前后端分离项目中（并不是不支持session，而是因为跨域导致请求无法携带Cookie），需要手动编码来保存这个Cookie，下次访问服务器时，携带Cookie。
+
+#### shiro+jwt整合篇
+
+##### 一、流程
+
+1. 
 
 ### CRUD基础篇
 

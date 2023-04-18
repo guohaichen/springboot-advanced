@@ -1,6 +1,5 @@
 package com.chen.shiro;
 
-import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,7 @@ import java.io.IOException;
  * @author cgh
  * @create 2023-04-17
  * 在shiroConfig配置中加入自定义的token filter
+ * 所有的请求都会先经过Filter
  * 执行顺序：preHandle->isAccessAllowed->isLoginAttempt->executeLogin
  */
 @Slf4j
@@ -92,7 +92,8 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     private void response401(ServletRequest request, ServletResponse response) {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         try {
-            httpServletResponse.sendRedirect("/401");
+            //重定向未登录页，返回未登录，状态码401 json
+            httpServletResponse.sendRedirect("/unauth");
         } catch (IOException e) {
             log.error("非法请求, " + e.getMessage());
         }
