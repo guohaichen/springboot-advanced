@@ -39,7 +39,6 @@ public class CrossConfig implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
-        log.info("request.getHeader('origin') is :{}",request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, UserInfo, Cookie, *");

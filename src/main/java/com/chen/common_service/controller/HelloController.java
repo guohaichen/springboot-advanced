@@ -5,12 +5,8 @@ import com.chen.common_service.mapper.DynamicUserMapper;
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.Authenticator;
-import org.apache.shiro.mgt.SubjectDAO;
-import org.apache.shiro.mgt.SubjectFactory;
-import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -54,7 +50,8 @@ public class HelloController {
         return dynamicUserMapper.getDevUser();
     }
 
-
+    //授权，admin
+    @RequiresRoles("admin")
     @GetMapping("/get/token")
     public String getName(@RequestHeader("Authorization") String token) {
         log.info("request's token from headers:{}", token);

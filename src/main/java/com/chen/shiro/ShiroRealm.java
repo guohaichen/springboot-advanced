@@ -1,5 +1,7 @@
 package com.chen.shiro;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.service.IUserLoginService;
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +10,7 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +35,9 @@ public class ShiroRealm extends AuthorizingRealm {
     /**
      * 必须重写此方法，否则shiro不会走自定义realm,报错如下：(一步步debug出来的，😭😭😭😭)
      * if (!realm.supports(token)) {
-     *  String msg = "Realm [" + realm + "] does not support authentication token [" + token + "].  Please ensure that the appropriate Realm implementation is configured correctly or that the realm accepts AuthenticationTokens of this type.";
-     *  throw new UnsupportedTokenException(msg);
+     * String msg = "Realm [" + realm + "] does not support authentication token [" + token + "].  Please ensure that the appropriate Realm implementation is configured correctly or that the realm accepts AuthenticationTokens of this type.";
+     * throw new UnsupportedTokenException(msg);
+     *
      * @param token
      * @return
      */
@@ -44,8 +48,14 @@ public class ShiroRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        log.info("shiro 权限认证");
-        return null;
+        //获取用户信息
+        String username = (String) principals.getPrimaryPrincipal();
+        //v1:role硬编码在user表中，直接根据用户名查role，并返回；
+        String role = userLoginService.getOne(new LambdaQueryWrapper<UserLogin>().eq(UserLogin::getUsername, username)).getRole();
+        log.info("开始 shiro 权限认证,username:{},role:{}", username, role);
+        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+        simpleAuthorizationInfo.addRole(role);
+        return simpleAuthorizationInfo;
     }
 
     /**
@@ -61,14 +71,17 @@ public class ShiroRealm extends AuthorizingRealm {
         //0. 拿到token
         String tokenString = token.getPrincipal().toString();
         //1. 验证token
-        if (JWTUtils.verifyToken(tokenString,secret)) {
+        if (JWTUtils.verifyToken(tokenString, secret)) {
             //验证成功
-            String username =  JWTUtils.getUserName(tokenString);
+            String username = JWTUtils.getUserName(tokenString);
             log.info("token authenticate, user's username: {}", username);
-            if (username != null ) {
-                //shiro默认的AuthenticatingRealm会对token进行校验，这里需要设置一致
+            if (username != null) {
+            /*  shiro会遍历所有Realm并执行
+            AuthenticatingRealm.doCredentialsMatch 会对 当前token，和new SimpleAuthenticationInfo创建的对象的getCredentials做equals
+            这里比较绕，要结合JwtToken,JwtFilter一起来看。
+             */
                 return new SimpleAuthenticationInfo(
-                        tokenString, tokenString, getName()
+                        username, tokenString, getName()
                 );
             }
         }

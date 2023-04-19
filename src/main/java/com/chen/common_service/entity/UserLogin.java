@@ -30,4 +30,7 @@ public class UserLogin {
     private java.lang.String phone;
 
     private java.lang.String nickName;
+
+    //角色
+    private java.lang.String role;
 }
