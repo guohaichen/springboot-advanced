@@ -197,7 +197,7 @@ jwt由有点分割的三个部分组成：**Header**.**Payload**.**Signature**
 
 > 注意：对于已签名的令牌，虽然该信息收到保护，不会被篡改，但任何人都可以读取。除非加密，所以不要放一些私密的信息在Payload或Header中。
 
-- **Signature**：它是对前两部分的签名，防止数据被篡改。首先需要指定一个secret，这个secret只有服务器知道。然后，使用Header里面的指定的签名算法。按照下面的公式产生签名，算出签名后，把Header和Payload、Signature三个部分组成一个字符串，每个部门用`.`分隔。返回给客户端。
+- **Signature**：它是对前两部分的签名，防止数据被篡改。首先需要指定一个secret，这个secret只有服务器知道。然后，使用Header里面的指定的签名算法。按照下面的公式产生签名，算出签名后，把Header和Payload、Signature三个部分组成一个字符串，每个部分用`.`分隔。返回给客户端。
 
 ```javascript
 HMACSHA256(
@@ -252,7 +252,7 @@ public static void verifyToken(String token, String secret) {
 
 - Subject: 主体，代表了当前用户，与当前应用交互的都是Subject，即是一个抽象概念，所有Subject都绑定到SecurityManager,与Subjeect的所有交互都会委托给SecurityManager。
 - SecurityManager: 安全管理器，当与Subject交互时，实际上是SecurityManager幕后为任何Subject安全操作执行所有繁重的工作。
-- Realm: Shiro从Realm获取安全数据，当SecurityManager执行用户身份验证和授权时，Shiro从配置中的一个或多个Realm来执行。
+- Realm: Shiro从Realm获取安全数据，当SecurityManager执行用户身份验证和授权时（调用login方法），Shiro从配置中的一个或多个Realm来执行。
 
 #### 身份验证
 
@@ -264,13 +264,10 @@ public static void verifyToken(String token, String secret) {
 
 #### 身份验证流程
 
-1. shiro把用户的数据封装成token,token一般封装着用户名，密码等信息；
-
-2. 使用Subject获取到封装着用户的数据的标识token;
-
-3. Subject把token交给SecurityManager,在SecurityManager安全中心内，SecurityManager把标识token委托给认证器Authenticator进行身份验证。认证器的作用一般是用来指定如何验证，它规定了本次认证使用到了哪些Realm;
-
-4. 认证器Authenticator将传入的标识token，与数据源Realm对比，验证token并返回；
+1. token一般封装着用户名，密码等信息，调用`subject.login(token)`进行登录认证。
+2. 接着shiro把token交给`SecurityManager`,SecurityManager把标识token委托给`Authenticator`进行身份验证。
+3. `Authenticator`可能会委托给相应的`AuthenticationStrategy`进行多`Realm`身份验证；
+4. `Authenticator`会把token传入`Realm`，从`Realm`获取身份验证信息，如果没有返回/抛出异常则表示身份验证成功。
 
 #### **Shiro过滤器**
 
@@ -396,8 +393,9 @@ public class ShiroConfig {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         Subject subject = SecurityUtils.getSubject();
         try {
+          	//将token委托给SecurityManager验证 核心语句
             subject.login(token);
-            return Result.OK("登陆成功");
+            return Result.OK("登录成功");
         } catch (AuthenticationException e) {
             log.error("登录信息有误:{}",e.getMessage());
             return Result.error("登录信息有误");
@@ -415,7 +413,10 @@ public class ShiroConfig {
 
 ##### 一、流程
 
-1. 
+1. 用户登录时，服务端从数据库查出来的用户信息和客户端用户信息进行对比，对比成功，则根据当前用户信息生成jwtToken，并返回给客户端;
+2. 将jwtToken同时在redis中存入一份，并设置合适的过期时间；
+3. 客户端将拿到的jwtToken保存在localStrage中，同时在后续的请求时将jwtToken放入请求头中携带；
+4. 服务端将收到的jwtToken在shiro的自定义realm中进行验证，验证通过则放行请求。
 
 ### CRUD基础篇
 
