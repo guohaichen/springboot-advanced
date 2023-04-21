@@ -15,7 +15,10 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+
+import static com.chen.common_service.constant.UserConstant.USER_TOKEN_PREFIX;
 
 /**
  * @author cgh
@@ -31,6 +34,9 @@ public class ShiroRealm extends AuthorizingRealm {
 
     @Autowired
     private IUserLoginService userLoginService;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     /**
      * 必须重写此方法，否则shiro不会走自定义realm,报错如下：(一步步debug出来的，😭😭😭😭)
@@ -70,8 +76,9 @@ public class ShiroRealm extends AuthorizingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         //0. 拿到token
         String tokenString = token.getPrincipal().toString();
-        //1. 验证token
-        if (JWTUtils.verifyToken(tokenString, secret)) {
+        //1. 验证token,从redis中取
+//        if (JWTUtils.verifyToken(tokenString, secret)) {
+        if (tokenString.equals(redisTemplate.opsForValue().get(USER_TOKEN_PREFIX+tokenString))) {
             //验证成功
             String username = JWTUtils.getUserName(tokenString);
             log.info("token authenticate, user's username: {}", username);
@@ -85,6 +92,7 @@ public class ShiroRealm extends AuthorizingRealm {
                 );
             }
         }
+        //todo token过期异常
         return null;
     }
 }

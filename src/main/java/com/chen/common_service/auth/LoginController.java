@@ -6,14 +6,21 @@ import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.service.IUserLoginService;
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.util.ByteSource;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static com.chen.common_service.constant.UserConstant.EXPIRE_TIME_DAY;
+import static com.chen.common_service.constant.UserConstant.USER_TOKEN_PREFIX;
 
 @Slf4j
 @RequestMapping("/auth")
@@ -80,9 +87,13 @@ public class LoginController {
         UserLogin userLogin = iUserLoginService.getOne(
                 new LambdaQueryWrapper<UserLogin>().
                         eq(UserLogin::getUsername, username));
-        if (userLogin.getPassword() != null && password.equals(userLogin.getPassword())) {
+        if (userLogin.getPassword() == null && "".equals(userLogin.getPassword().trim())) {
+            return Result.error("密码不能为空!");
+        }
+        if (userLogin.getPassword().equals(getEncodePassword(password))) {
             String jwtToken = JWTUtils.buildToken(username, secret);
-            redisTemplate.opsForValue().set(jwtToken, jwtToken);
+            redisTemplate.opsForValue().set(USER_TOKEN_PREFIX+jwtToken, jwtToken);
+            redisTemplate.expire(USER_TOKEN_PREFIX+jwtToken,EXPIRE_TIME_DAY, TimeUnit.SECONDS);
             return Result.OK("登录成功", jwtToken);
         } else {
             return Result.error("登录信息有误");
@@ -97,16 +108,16 @@ public class LoginController {
      */
     @PostMapping("/registryByShiro")
     public Result<?> registryBtShiro(@RequestBody UserLogin user) {
-        log.info("user:{}", user.toString());
-        //shiro密码加盐
-//        ByteSource byteSource = ByteSource.Util.bytes(salt);
-        //生成密码
-//        SimpleHash password = new SimpleHash("md5", user.getPassword(), byteSource, 3);
-        boolean save = iUserLoginService.save(user);
-        if (save) {
+        if (!StringUtils.hasLength(user.getUsername()) || !StringUtils.hasLength(user.getPassword())) {
+            if ("".equals(user.getUsername().trim()) || "".equals(user.getPassword().trim())) {
+                return Result.error("用户名或密码不能为空!");
+            }
+        }
+        user.setPassword(getEncodePassword(user.getPassword()));
+        if (iUserLoginService.save(user)) {
             return Result.OK("注册成功");
         } else {
-            return Result.error("注册失败");
+            return Result.error("注册失败,请重试");
         }
     }
 
@@ -114,5 +125,13 @@ public class LoginController {
     @ResponseBody
     public Result<?> unAuth() {
         return Result.noAuth("未认证，请登录!");
+    }
+
+    //加密password
+    public String getEncodePassword(String password) {
+        //shiro对密码加密，密码作为盐
+        ByteSource byteSource = ByteSource.Util.bytes(password);
+        //生成密码
+        return new SimpleHash("md5", password, byteSource, 2).toHex();
     }
 }
