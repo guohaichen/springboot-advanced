@@ -58,10 +58,11 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         if (isLoginAttempt(request, response)) {
             try {
+                //交给shiro进行验证和授权
                 executeLogin(request, response);
                 return true;
             } catch (Exception e) {
-                response401(request, response);
+                response401(request,response);
             }
         }
         //未携带token，不放行
@@ -86,18 +87,14 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         return super.preHandle(request, response);
     }
 
-    /*
-    将非法请求跳转到401
-     */
-    private void response401(ServletRequest request, ServletResponse response) {
+   // 将token过期请求进行转发，转发到controller，使得全局异常处理器捕获。
+     private void response401(ServletRequest request, ServletResponse response) {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         try {
             //重定向未登录页，返回未登录，状态码401 json
-            httpServletResponse.sendRedirect("/unauth");
+            httpServletResponse.sendRedirect("/auth/unauth");
         } catch (IOException e) {
-            log.error("非法请求, " + e.getMessage());
+            log.error(e.getMessage());
         }
     }
-
-
 }

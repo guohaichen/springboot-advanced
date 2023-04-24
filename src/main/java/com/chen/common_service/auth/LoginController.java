@@ -6,6 +6,7 @@ import com.chen.common_service.entity.UserLogin;
 import com.chen.common_service.service.IUserLoginService;
 import com.chen.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.util.ByteSource;
 import org.mindrot.jbcrypt.BCrypt;
@@ -124,7 +125,7 @@ public class LoginController {
     @RequestMapping("/unauth")
     @ResponseBody
     public Result<?> unAuth() {
-        return Result.noAuth("未认证，请登录!");
+        throw new AuthenticationException("token过期，请重新登录!");
     }
 
     //加密password

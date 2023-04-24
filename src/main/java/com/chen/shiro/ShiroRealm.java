@@ -74,11 +74,17 @@ public class ShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        //0. 拿到token
+        // 拿到token
         String tokenString = token.getPrincipal().toString();
-        //1. 验证token,从redis中取
+        if (tokenString == null){
+            throw new AuthenticationException("token为空!");
+        }
+        //. 验证token,从redis中取
+        if (null == redisTemplate.opsForValue().get(USER_TOKEN_PREFIX + tokenString)) {
+            throw new AuthenticationException("token已过期, 请重新登录!");
+        }
 //        if (JWTUtils.verifyToken(tokenString, secret)) {
-        if (tokenString.equals(redisTemplate.opsForValue().get(USER_TOKEN_PREFIX+tokenString))) {
+        if (tokenString.equals(redisTemplate.opsForValue().get(USER_TOKEN_PREFIX + tokenString))) {
             //验证成功
             String username = JWTUtils.getUserName(tokenString);
             log.info("token authenticate, user's username: {}", username);
@@ -92,7 +98,6 @@ public class ShiroRealm extends AuthorizingRealm {
                 );
             }
         }
-        //todo token过期异常
         return null;
     }
 }

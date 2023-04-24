@@ -31,7 +31,7 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         //给filter设置安全管理器
         shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
-        shiroFilterFactoryBean.setLoginUrl("auth/unauth");
+//        shiroFilterFactoryBean.setLoginUrl("/auth/unauth");
 
         //添加自定义的jwtFilter，
         HashMap<String, Filter> filterMap = new HashMap<>();
@@ -42,6 +42,8 @@ public class ShiroConfig {
         HashMap<String, String> filterRuleMap = new HashMap<>();
         filterRuleMap.put("/auth/loginByShiro","anon");
         filterRuleMap.put("/auth/registryByShiro","anon");
+        //token过期的异常controller
+        filterRuleMap.put("/auth/unauth","anon");
         //放行图片资源
         filterRuleMap.put("/image/**","anon");
         filterRuleMap.put("/**","jwt");
