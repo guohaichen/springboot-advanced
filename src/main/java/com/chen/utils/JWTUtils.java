@@ -5,12 +5,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 /**
  * jwt工具类，生成token，解析token，对token不做其他操作
@@ -56,7 +53,7 @@ public class JWTUtils {
     public static String getUserName(String token){
         try {
             DecodedJWT jwt = JWT.decode(token);
-            log.info("jwt.getClaim(username).asString: {}",jwt.getClaim("username").asString());
+//            log.info("jwt.getClaim(username).asString: {}",jwt.getClaim("username").asString());
             return jwt.getClaim("username").asString();
         } catch (JWTDecodeException e) {
             throw new RuntimeException("token解析错误");

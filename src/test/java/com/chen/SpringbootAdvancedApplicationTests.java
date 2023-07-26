@@ -1,5 +1,7 @@
 package com.chen;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -7,20 +9,21 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Calendar;
 import java.util.Map;
 
-//@SpringBootTest
+@SpringBootTest
 class SpringbootAdvancedApplicationTests {
 
     //加密测试
     @Test
-    void checkPassword(){
+    void checkPassword() {
         //hash password
         String password = "cm129911";
         String genSalt = "$2a$10$bsNHD51BJgCuW0nFOo.6de";
-        System.out.println("盐:\t"+genSalt);
+        System.out.println("盐:\t" + genSalt);
         String hashPwd = BCrypt.hashpw(password, genSalt);
         System.out.println(hashPwd);
 
@@ -33,10 +36,10 @@ class SpringbootAdvancedApplicationTests {
 
     //创建token测试
     @Test
-    void  createToken(){
+    void createToken() {
         //现在的时间+20秒
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE,2);
+        calendar.add(Calendar.MINUTE, 2);
 
         String token = JWT.create()
                 .withClaim("userId", 21) //payload
@@ -47,8 +50,8 @@ class SpringbootAdvancedApplicationTests {
     }
 
     @Test
-    //根据令牌和算法解析token
-    void verifyToken(){
+        //根据令牌和算法解析token
+    void verifyToken() {
         //secret ,算法已知
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256("#%#%FDSF@$")).build();
         //insert your token
@@ -61,5 +64,14 @@ class SpringbootAdvancedApplicationTests {
         }
     }
 
+    //创建阿里云oss bucket 测试
+    @Test
+    void testOssConnect() {
+        String endpoint = "https://oss-cn-shanghai.aliyuncs.com";
+        String accessKeyId = "LTAI5tC77a34yF6KYtBQ9xjJ";
+        String accessKeySecret = "WB5izJZEnQNdWwegRl4etBLOR8QOxO";
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        ossClient.createBucket("chen-bucket-create-test");
+    }
 
 }
