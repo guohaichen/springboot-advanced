@@ -88,13 +88,16 @@ public class LoginController {
         UserLogin userLogin = iUserLoginService.getOne(
                 new LambdaQueryWrapper<UserLogin>().
                         eq(UserLogin::getUsername, username));
-        if (userLogin.getPassword() == null && "".equals(userLogin.getPassword().trim())) {
+        if (userLogin == null) {
+            return Result.error("登录信息有误");
+        }
+        if (userLogin.getPassword() == null || "".equals(userLogin.getPassword().trim())) {
             return Result.error("密码不能为空!");
         }
         if (userLogin.getPassword().equals(getEncodePassword(password))) {
             String jwtToken = JWTUtils.buildToken(username, secret);
-            redisTemplate.opsForValue().set(USER_TOKEN_PREFIX+jwtToken, jwtToken);
-            redisTemplate.expire(USER_TOKEN_PREFIX+jwtToken,EXPIRE_TIME_DAY, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(USER_TOKEN_PREFIX + jwtToken, jwtToken);
+            redisTemplate.expire(USER_TOKEN_PREFIX + jwtToken, EXPIRE_TIME_DAY, TimeUnit.SECONDS);
             return Result.OK("登录成功", jwtToken);
         } else {
             return Result.error("登录信息有误");
