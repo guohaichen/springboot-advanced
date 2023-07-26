@@ -32,8 +32,8 @@ import java.util.Date;
 public class BaseController {
 
     private final static String endpoint = "https://oss-cn-shanghai.aliyuncs.com";
-    private final static String accessKeyId = "LTAI5tC77a34yF6KYtBQ9xjJ";
-    private final static String accessKeySecret = "WB5izJZEnQNdWwegRl4etBLOR8QOxO";
+    private final static String accessKeyId = "xxxxxxxxxxxxxxxxxxxx";
+    private final static String accessKeySecret = "xxxxxxxxxxxxxxxxxxxxxx";
     private final static String bucketName = "guohai-test";
     private final static String key = "<downloadKey>";
     private final static String uploadFile = "<uploadFile>";
@@ -104,17 +104,18 @@ public class BaseController {
             System.out.println("Error Code:" + oe.getErrorCode());
             System.out.println("Request ID:" + oe.getRequestId());
             System.out.println("Host ID:" + oe.getHostId());
+            return Result.error("上传失败");
         } catch (ClientException ce) {
             System.out.println("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");
             System.out.println("Error Message:" + ce.getMessage());
+            return Result.error("上传失败");
         } finally {
             if (ossClient != null) {
                 ossClient.shutdown();
             }
         }
-        return Result.error("上传失败");
     }
 
     //拼接路径+文件名
