@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static com.chen.common_service.constant.UserConstant.USER_TOKEN_PREFIX;
+
 /**
  * @author cgh
  * @create 2022-06-20 13:47
@@ -58,7 +60,7 @@ public class HelloController {
         Subject subject = SecurityUtils.getSubject();
         boolean authenticated = subject.isAuthenticated();
         log.info("authenticated:\t{}", authenticated);
-        return redisTemplate.opsForValue().get(token);
+        return redisTemplate.opsForValue().get(USER_TOKEN_PREFIX+token);
     }
 
     /**
