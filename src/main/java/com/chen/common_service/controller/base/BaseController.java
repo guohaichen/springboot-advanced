@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author cgh
@@ -37,7 +37,6 @@ public class BaseController {
     private final static String bucketName = "guohai-test";
     private final static String key = "<downloadKey>";
     private final static String uploadFile = "<uploadFile>";
-
     @Value(value = "${img.baseSrc}")
     private String uploadPath;
 
@@ -131,14 +130,21 @@ public class BaseController {
      * @param file         文件
      * @param filename     文件名
      * @param contentRange 文件字符
-     *                     分片保存多个文件
+     *                     分片保存多个文件,这里注意因为涉及到文件的合并，需要将不同的符合条件的文件合并起来，这里一个简单做法就是根据
+     *                     唯一的文件名称来创建 一个文件夹，然后 将分片文件 上传至 这个唯一的文件夹，遍历文件夹，进行合并；
      */
     @PostMapping("/bigFile")
     public Result<?> bigFileUpload(@RequestParam("file") MultipartFile file,
                                    @RequestParam("filename") String filename,
                                    @RequestHeader("Content-Range") String contentRange) {
         try {
-            final Path uploadFireDirectory = Paths.get(uploadPath);
+            log.info("filename: {}", filename);
+            //根据唯一文件，创建唯一文件夹，将文件都存放在次唯一文件夹中
+            final Path uploadFireDirectory = getUniqueDirectory(filename);
+            //创建文件夹
+            if (!Files.exists(uploadFireDirectory)) {
+                Files.createDirectories(uploadFireDirectory);
+            }
             //解析content-range头部，获取分片的起始结束字节位置
             String[] rangeParts = contentRange.split("[ -/]");
             long startByte = Long.parseLong(rangeParts[1]);
@@ -147,7 +153,7 @@ public class BaseController {
             String filenamePrefix = filename.substring(0, filename.lastIndexOf("."));
             String fileSuffix = filename.substring(filename.lastIndexOf(".") + 1);
 
-            Path tempFilePath = uploadFireDirectory.resolve(filenamePrefix + "-" + startByte +"."+ fileSuffix);
+            Path tempFilePath = uploadFireDirectory.resolve(filenamePrefix + "-" + startByte + "." + fileSuffix);
             Files.write(tempFilePath, file.getBytes());
             return Result.OK("分片上传成功");
         } catch (IOException e) {
@@ -156,39 +162,24 @@ public class BaseController {
         }
     }
 
+    //根据文件名，创建唯一目录 Date.now-文件名
+    private Path getUniqueDirectory(String filename) {
+        String uniqueDirectory = filename.substring(0, filename.lastIndexOf("."));
+        return Paths.get(uploadPath + File.separator + uniqueDirectory);
+    }
+
     /**
      * 合并分片文件
      *
-     * @param filename 文件名称
      * @return
      */
-    @PostMapping("/bingFile/merge")
-    public Result<?> mergeFile(@RequestParam("file") String filename) {
-        //目标存储目录
-        Path targetFilePath = Paths.get(uploadPath + File.separator).resolve(filename);
-        //获取临时目录下所有的分片文件
-        try {
-            List<Path> tempFiles = Files.list(uploadFileTempPath)
-                    .filter(file -> file.getFileName().toString().startsWith(filename))
-                    .sorted()
-                    .collect(Collectors.toList());
+    @PostMapping("/bigFile/merge")
+    public Result<?> mergeFile(@RequestParam("filename") String filename) {
+        log.info("merge:filename:{}", filename);
 
-            //合并分片文件到目标文件夹
-            try {
-                OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(targetFilePath.toFile().toPath()));
-                for (Path tempFile : tempFiles) {
-                    byte[] data = Files.readAllBytes(tempFile);
-                    outputStream.write(data);
-                    Files.delete(tempFile);
-                }
-                Files.delete(uploadFileTempPath);
-                return Result.OK("文件合并成功");
-            } catch (IOException e) {
-                return Result.error("文件合并失败:\t" + e.getMessage());
-            }
-        } catch (IOException e) {
-            return Result.error("文件合并失败:\t" + e.getMessage());
-        }
+        Path uniqueDirectory = getUniqueDirectory(filename);
+        System.out.println(uniqueDirectory);
+        return Result.OK();
     }
 
     //拼接路径+文件名
