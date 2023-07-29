@@ -13,14 +13,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author cgh
@@ -176,10 +178,61 @@ public class BaseController {
     @PostMapping("/bigFile/merge")
     public Result<?> mergeFile(@RequestParam("filename") String filename) {
         log.info("merge:filename:{}", filename);
+        //生成目标文件目录
+        Path targetFile = Paths.get("F:\\gitHub\\blog\\img" + File.separator + filename);
 
+        //存放文件的目录
         Path uniqueDirectory = getUniqueDirectory(filename);
-        System.out.println(uniqueDirectory);
+        try {
+            FileOutputStream outputStream = new FileOutputStream(targetFile.toFile());
+            try {
+                //根据目标遍历文件  //根据创建时间遍历文件
+                List<Path> files = Files.walk(uniqueDirectory)
+                        .filter(Files::isRegularFile)
+                        .sorted(Comparator.comparing(file -> {
+                            try {
+                                return Files.getLastModifiedTime(file).toMillis();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return 0L;
+                        })).collect(Collectors.toList());
+                files.forEach(file -> {
+                    try {
+                        InputStream inputStream = Files.newInputStream(file);
+                        //文件合并
+                        copy(inputStream, outputStream);
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                //删除分片文件
+                for (Path file : files) {
+                    Files.delete(file);
+                }
+                //删除临时存放分片文件目录
+                Files.deleteIfExists(uniqueDirectory);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            outputStream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         return Result.OK();
+    }
+
+    //文件合并
+    private void copy(InputStream inputStream, FileOutputStream outputStream) throws IOException {
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+        }
     }
 
     //拼接路径+文件名
