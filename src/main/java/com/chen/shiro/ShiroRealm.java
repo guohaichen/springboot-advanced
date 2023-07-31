@@ -87,7 +87,7 @@ public class ShiroRealm extends AuthorizingRealm {
         if (tokenString.equals(redisTemplate.opsForValue().get(USER_TOKEN_PREFIX + tokenString))) {
             //验证成功
             String username = JWTUtils.getUserName(tokenString);
-            log.info("token authenticate, user's username: {}", username);
+//            log.info("token authenticate, user's username: {}", username);
             if (username != null) {
             /*  shiro会遍历所有Realm并执行
             AuthenticatingRealm.doCredentialsMatch 会对 当前token，和new SimpleAuthenticationInfo创建的对象的getCredentials做equals
