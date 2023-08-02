@@ -2,9 +2,12 @@ package com.chen.common_service.controller;
 
 import com.chen.common_service.dto.Result;
 import com.chen.common_service.entity.Comment;
+import com.chen.common_service.entity.CommentCount;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -38,9 +41,21 @@ public class CommentController {
         Query query = new Query().addCriteria(Criteria.where("postId").is(postId));
         List<Comment> commentList = mongoTemplate.find(query, Comment.class);
 
-        for (Comment comment : commentList) {
-            log.info("comment: {}", comment);
+        //聚合操作demo，例如根据postId统计 评论总数
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation
+                        .group("postId").count().as("commentCount"));
+        AggregationResults<CommentCount> results = mongoTemplate.aggregate(aggregation, "comment", CommentCount.class);
+        List<CommentCount> mappedResults = results.getMappedResults();
+        //根据postId,汇总评论数
+        for (CommentCount mappedResult : mappedResults) {
+            log.info("文章:{},评论数:{}", mappedResult.getId(), mappedResult.getCommentCount());
         }
+
+
+//        for (Comment comment : commentList) {
+//            log.info("comment: {}", comment);
+//        }
         return commentList;
     }
 
