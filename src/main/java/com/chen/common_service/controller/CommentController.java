@@ -41,15 +41,19 @@ public class CommentController {
         Query query = new Query().addCriteria(Criteria.where("postId").is(postId));
         List<Comment> commentList = mongoTemplate.find(query, Comment.class);
 
-        //聚合操作demo，例如根据postId统计 评论总数
+        //聚合操作demo，例如根据postId统计 评论总数；多个条件用 , 分隔
         Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation
-                        .group("postId").count().as("commentCount"));
+                // 指定文章做
+                Aggregation.match(Criteria.where("postId").is(postId)),
+                // 根据指定postId 做合计
+                Aggregation.group("postId")
+                        .first("postId").as("postId")
+                        .count().as("commentCount"));
         AggregationResults<CommentCount> results = mongoTemplate.aggregate(aggregation, "comment", CommentCount.class);
         List<CommentCount> mappedResults = results.getMappedResults();
         //根据postId,汇总评论数
         for (CommentCount mappedResult : mappedResults) {
-            log.info("文章:{},评论数:{}", mappedResult.getId(), mappedResult.getCommentCount());
+            log.info("文章:{},评论数:{}", mappedResult.getPostId(), mappedResult.getCommentCount());
         }
 
 
